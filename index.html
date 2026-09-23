@@ -8,33 +8,58 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              50: '#F4F8F4',
+              100: '#E5EFE5',
+              200: '#C5DCC6',
+              300: '#A3C9A8',
+              500: '#6E9975',
+              600: '#5C8363',
+              700: '#47674D',
+              800: '#37503C',
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-slate-50 text-slate-800 p-4 md:p-8 min-h-screen">
+<body class="bg-sage-50 text-slate-800 p-4 md:p-8 min-h-screen">
   <div id="app" class="max-w-4xl mx-auto space-y-6">
     
-    <!-- 頁首標題（套用自訂 Banner 背景圖） -->
-    <header class="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-      <!-- 背景圖片區塊 -->
+    <!-- 頁首標題（結合 Banner 背景圖與鼠尾草綠 Logo） -->
+    <header class="relative rounded-2xl overflow-hidden shadow-lg border border-sage-200">
+      <!-- Banner 背景圖 -->
       <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
-      <!-- 半透明遮罩，確保文字清楚 readable -->
-      <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
+      <!-- 薄綠深色半透明遮罩 -->
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]"></div>
 
       <div class="relative z-10 p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold tracking-wide drop-shadow-md">💎 2399 漢秀回歸紀錄帳本</h1>
-          <p class="text-slate-100 mt-1 text-sm drop-shadow">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
+        <!-- Logo 與標題組合 -->
+        <div class="flex items-center space-x-4">
+          <img src="./logo.jpg" alt="Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-xl shadow-md border-2 border-white/80 object-cover">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-wide drop-shadow-md">2399 漢秀回歸紀錄帳本</h1>
+            <p class="text-sage-100 mt-0.5 text-xs md:text-sm drop-shadow">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
+          </div>
         </div>
+
         <!-- Tab 頁籤導覽按鈕 -->
-        <nav class="flex bg-black/40 backdrop-blur-md p-1 rounded-xl w-full md:w-auto border border-white/20">
+        <nav class="flex bg-black/30 backdrop-blur-md p-1 rounded-xl w-full md:w-auto border border-white/20">
           <button 
             @click="currentTab = 'calendar'" 
-            :class="currentTab === 'calendar' ? 'bg-white text-slate-900 shadow font-bold' : 'text-white hover:bg-white/10'"
+            :class="currentTab === 'calendar' ? 'bg-sage-200 text-sage-800 font-bold shadow' : 'text-white hover:bg-white/10'"
             class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
             📅 回歸日程
           </button>
           <button 
             @click="currentTab = 'merch'" 
-            :class="currentTab === 'merch' ? 'bg-white text-slate-900 shadow font-bold' : 'text-white hover:bg-white/10'"
+            :class="currentTab === 'merch' ? 'bg-sage-200 text-sage-800 font-bold shadow' : 'text-white hover:bg-white/10'"
             class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
             🛒 周邊購物
           </button>
@@ -46,39 +71,39 @@
     <main v-if="currentTab === 'calendar'" class="space-y-6">
       
       <!-- 月曆卡片 -->
-      <section class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <section class="bg-white p-4 md:p-6 rounded-2xl border border-sage-200 shadow-sm space-y-4">
         <!-- 月曆標頭與切換 -->
-        <div class="flex justify-between items-center pb-2 border-b">
+        <div class="flex justify-between items-center pb-2 border-b border-sage-100">
           <div class="flex items-center space-x-3">
-            <h2 class="text-xl font-bold text-slate-700">{{ calendarYear }} 年 {{ calendarMonth + 1 }} 月</h2>
+            <h2 class="text-xl font-bold text-sage-800">{{ calendarYear }} 年 {{ calendarMonth + 1 }} 月</h2>
             <div class="flex space-x-1">
-              <button @click="prevMonth" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-bold">‹</button>
-              <button @click="todayMonth" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium">今天</button>
-              <button @click="nextMonth" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-bold">›</button>
+              <button @click="prevMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-sm font-bold">‹</button>
+              <button @click="todayMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-xs font-medium">今天</button>
+              <button @click="nextMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-sm font-bold">›</button>
             </div>
           </div>
-          <button @click="showAddEvent = !showAddEvent" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+          <button @click="showAddEvent = !showAddEvent" class="px-3.5 py-1.5 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
             {{ showAddEvent ? '取消' : '+ 新增行程' }}
           </button>
         </div>
 
         <!-- 新增日程表單 -->
-        <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-slate-50 p-4 rounded-xl space-y-3">
+        <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-sage-50/60 p-4 rounded-xl border border-sage-200 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input v-model="newEvent.title" type="text" placeholder="日程名稱 (如: Teaser 1)" required class="p-2 border rounded-lg text-sm">
-            <input v-model="newEvent.date" type="datetime-local" required class="p-2 border rounded-lg text-sm">
-            <select v-model="newEvent.category" class="p-2 border rounded-lg text-sm">
+            <input v-model="newEvent.title" type="text" placeholder="日程名稱 (如: Teaser 1)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <input v-model="newEvent.date" type="datetime-local" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <select v-model="newEvent.category" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
               <option value="預告卡">📷 概念照/預告</option>
               <option value="MV/音源">🎧 音源/MV公開</option>
               <option value="節目/打歌">📺 節目/打歌</option>
               <option value="簽售/活動">🤝 簽售/活動</option>
             </select>
           </div>
-          <button type="submit" class="w-full py-2 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-600">新增行程至月曆</button>
+          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">新增行程至月曆</button>
         </form>
 
         <!-- 月曆 Grid 網格 -->
-        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 pb-1">
+        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-sage-600 pb-1">
           <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
         </div>
 
@@ -88,12 +113,12 @@
             :key="idx" 
             class="min-h-[75px] md:min-h-[95px] p-1 border rounded-xl flex flex-col justify-between transition"
             :class="{
-              'bg-slate-50 border-transparent opacity-40': !day.isCurrentMonth,
+              'bg-slate-50/50 border-transparent opacity-40': !day.isCurrentMonth,
               'bg-white border-slate-100': day.isCurrentMonth,
-              'border-indigo-400 bg-indigo-50/30': day.isToday
+              'border-sage-500 bg-sage-100/40 ring-1 ring-sage-300': day.isToday
             }">
             <div class="text-right">
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-indigo-600 text-white' : 'text-slate-600'">
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-sage-600 text-white' : 'text-slate-600'">
                 {{ day.dayNumber }}
               </span>
             </div>
@@ -103,7 +128,7 @@
                 v-for="event in day.events" 
                 :key="event.id"
                 class="text-[10px] md:text-xs p-1 rounded truncate font-medium cursor-pointer"
-                :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-indigo-100 text-indigo-700'"
+                :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800 border border-sage-200'"
                 :title="event.title">
                 {{ event.title }}
               </div>
@@ -113,15 +138,15 @@
       </section>
 
       <!-- 日程清單列表 -->
-      <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h3 class="text-base font-bold text-slate-700 border-b pb-2">📋 所有行程清單 ({{ events.length }})</h3>
+      <section class="bg-white p-6 rounded-2xl border border-sage-200 shadow-sm space-y-3">
+        <h3 class="text-base font-bold text-sage-800 border-b border-sage-100 pb-2">📋 所有行程清單 ({{ events.length }})</h3>
         <div v-if="events.length === 0" class="text-center py-6 text-slate-400 text-sm">目前還沒有行程，快點擊上方「+ 新增行程」吧！</div>
         <div class="space-y-2">
-          <div v-for="event in sortedEvents" :key="event.id" class="flex items-center justify-between p-3 rounded-xl border" :class="event.completed ? 'bg-slate-100 text-slate-400' : 'bg-white'">
+          <div v-for="event in sortedEvents" :key="event.id" class="flex items-center justify-between p-3 rounded-xl border border-slate-100" :class="event.completed ? 'bg-slate-50 text-slate-400' : 'bg-white'">
             <div class="flex items-center space-x-3">
-              <input type="checkbox" :checked="event.completed" @change="toggleEventStatus(event)" class="w-4 h-4 text-indigo-600 rounded">
+              <input type="checkbox" :checked="event.completed" @change="toggleEventStatus(event)" class="w-4 h-4 text-sage-600 rounded border-sage-300 focus:ring-sage-500">
               <div>
-                <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 font-semibold mr-2">{{ event.category }}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-sage-100 text-sage-700 font-semibold mr-2">{{ event.category }}</span>
                 <span class="font-medium text-sm" :class="{ 'line-through': event.completed }">{{ event.title }}</span>
                 <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(event.date) }}</p>
               </div>
@@ -137,45 +162,45 @@
       
       <!-- 統計概覽卡片 -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
           <span class="text-xs font-semibold text-slate-400">總支出金額</span>
-          <p class="text-2xl font-extrabold text-rose-500 mt-1">NT$ {{ totalPrice }}</p>
+          <p class="text-2xl font-extrabold text-sage-700 mt-1">NT$ {{ totalPrice }}</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
           <span class="text-xs font-semibold text-slate-400">待付款 / 預購品項</span>
           <p class="text-2xl font-extrabold text-amber-500 mt-1">{{ pendingItemsCount }} 項</p>
         </div>
       </section>
 
       <!-- 周邊清單區塊 -->
-      <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex justify-between items-center border-b pb-3">
-          <h2 class="text-lg font-bold text-slate-700">🛒 周邊與小卡清單</h2>
-          <button @click="showAddMerch = !showAddMerch" class="px-3 py-1.5 bg-rose-500 text-white rounded-lg text-sm font-medium hover:bg-rose-600 transition">
+      <section class="bg-white p-6 rounded-2xl border border-sage-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center border-b border-sage-100 pb-3">
+          <h2 class="text-lg font-bold text-sage-800">🛒 周邊與小卡清單</h2>
+          <button @click="showAddMerch = !showAddMerch" class="px-3.5 py-1.5 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
             {{ showAddMerch ? '取消' : '+ 新增消費紀錄' }}
           </button>
         </div>
 
         <!-- 新增商品表單 -->
-        <form v-if="showAddMerch" @submit.prevent="addMerch" class="bg-slate-50 p-4 rounded-xl space-y-3">
+        <form v-if="showAddMerch" @submit.prevent="addMerch" class="bg-sage-50/60 p-4 rounded-xl border border-sage-200 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border rounded-lg text-sm">
-            <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border rounded-lg text-sm">
-            <select v-model="newMerch.status" class="p-2 border rounded-lg text-sm">
+            <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <select v-model="newMerch.status" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
               <option value="待付款">⏳ 待付款</option>
               <option value="已付款">✅ 已付款/待出貨</option>
               <option value="已收到">📦 已收到</option>
             </select>
-            <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border rounded-lg text-sm">
+            <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
           </div>
-          <button type="submit" class="w-full py-2 bg-rose-500 text-white rounded-lg text-sm font-semibold hover:bg-rose-600">儲存購物紀錄</button>
+          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">儲存購物紀錄</button>
         </form>
 
         <!-- 周邊表格 -->
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead>
-              <tr class="text-xs text-slate-400 border-b">
+              <tr class="text-xs text-slate-400 border-b border-sage-100">
                 <th class="pb-2">品項名稱</th>
                 <th class="pb-2">狀態</th>
                 <th class="pb-2">金額</th>
@@ -183,20 +208,20 @@
                 <th class="pb-2 text-right">操作</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-sage-50">
               <tr v-for="item in merchList" :key="item.id">
-                <td class="py-3 font-medium">{{ item.name }}</td>
+                <td class="py-3 font-medium text-slate-700">{{ item.name }}</td>
                 <td class="py-3">
-                  <span class="text-xs px-2 py-1 rounded-full font-medium" 
+                  <span class="text-xs px-2.5 py-1 rounded-full font-medium" 
                     :class="{
                       'bg-amber-100 text-amber-700': item.status === '待付款',
-                      'bg-blue-100 text-blue-700': item.status === '已付款',
+                      'bg-sage-100 text-sage-800': item.status === '已付款',
                       'bg-emerald-100 text-emerald-700': item.status === '已收到'
                     }">
                     {{ item.status }}
                   </span>
                 </td>
-                <td class="py-3 font-semibold text-rose-500">NT$ {{ item.price }}</td>
+                <td class="py-3 font-semibold text-sage-700">NT$ {{ item.price }}</td>
                 <td class="py-3 text-slate-400 text-xs">{{ item.note || '-' }}</td>
                 <td class="py-3 text-right">
                   <button @click="deleteMerch(item.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
