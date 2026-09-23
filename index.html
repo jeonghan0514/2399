@@ -28,36 +28,40 @@
       }
     }
   </script>
+  <style>
+    /* 隱藏滾動條但保持滾動 */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body class="bg-sage-50 text-slate-800 p-4 md:p-8 min-h-screen">
-  <!-- 調整為舒適的中大型寬度 max-w-6xl，兼顧視角平衡與空間 -->
+<body class="bg-slate-100 text-slate-800 p-3 md:p-6 min-h-screen">
   <div id="app" class="max-w-6xl mx-auto space-y-6">
     
-    <!-- 頁首區塊（頂部純圖片 + 下方標題列） -->
+    <!-- 頁首區塊 -->
     <header class="bg-white rounded-2xl overflow-hidden shadow-sm border border-sage-200">
-      
-      <!-- 1. 最上方純圖片 Banner -->
-      <div class="w-full h-36 md:h-52 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
-
-      <!-- 2. Banner 下方的標題與分頁按鈕區塊 -->
-      <div class="p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t border-sage-100">
-        
-        <!-- Logo 與標題 -->
-        <div class="flex items-center space-x-4">
-          <img src="./logo.jpg" alt="Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-xl shadow-sm border border-sage-200 object-cover">
+      <div class="w-full h-36 md:h-48 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
+      <div class="p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t border-sage-100">
+        <div class="flex items-center space-x-3.5">
+          <img src="./logo.jpg" alt="Logo" class="w-12 h-12 rounded-xl shadow-sm border border-sage-200 object-cover">
           <div>
             <h1 class="text-xl md:text-2xl font-bold tracking-wide text-sage-800">2399 漢秀回歸紀錄帳本</h1>
             <p class="text-slate-500 mt-0.5 text-xs md:text-sm">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
           </div>
         </div>
 
-        <!-- Tab 頁籤導覽按鈕 -->
+        <!-- 分頁切換 -->
         <nav class="flex bg-sage-50 p-1 rounded-xl w-full md:w-auto border border-sage-200">
+          <button 
+            @click="currentTab = 'timeline'" 
+            :class="currentTab === 'timeline' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
+            class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
+            📋 回歸流水帳 (Timeline)
+          </button>
           <button 
             @click="currentTab = 'calendar'" 
             :class="currentTab === 'calendar' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
             class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
-            📅 回歸日程
+            📅 月曆視圖
           </button>
           <button 
             @click="currentTab = 'merch'" 
@@ -66,105 +70,132 @@
             🛒 周邊購物
           </button>
         </nav>
-
       </div>
     </header>
 
-    <!-- ==================== 分頁 1: 回歸日程 (月曆視圖) ==================== -->
-    <main v-if="currentTab === 'calendar'" class="space-y-6">
+    <!-- ==================== 分頁 1: 回歸時間軸流水帳 (參考圖版型) ==================== -->
+    <main v-if="currentTab === 'timeline'" class="space-y-4">
       
-      <!-- 月曆卡片 (舒適黃金尺寸) -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-sage-200 shadow-sm space-y-4">
-        <!-- 月曆標頭與切換 -->
+      <!-- 控制列與新增按鈕 -->
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-sage-200 shadow-sm">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-sage-600"></span>
+          <h2 class="text-base md:text-lg font-bold text-slate-700">JEONGHAN x JOSHUA 回歸動態時間流</h2>
+        </div>
+        <button @click="showAddEvent = !showAddEvent" class="px-4 py-2 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
+          {{ showAddEvent ? '取消' : '+ 新增行程/動態' }}
+        </button>
+      </div>
+
+      <!-- 新增行程表單 -->
+      <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-3">
+        <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: Instagram 更新 / Teaser 1)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+          <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+          <select v-model="newEvent.platform" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+            <option value="Instagram">📷 Instagram</option>
+            <option value="YouTube">🔴 YouTube / LIVE</option>
+            <option value="X">✖️ X (Twitter)</option>
+            <option value="Weverse">💬 Weverse</option>
+            <option value="官方預告">💿 官方發售/預告</option>
+            <option value="節目活動">📺 節目/簽售</option>
+          </select>
+          <input v-model="newEvent.link" type="text" placeholder="連結網址 (選填)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">儲存至時間軸</button>
+      </form>
+
+      <!-- 流水帳清單卡片 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
+        
+        <div v-if="groupedEvents.length === 0" class="p-12 text-center text-slate-400 text-sm">
+          目前還沒有動態紀錄，點擊右上角「+ 新增行程/動態」開始紀錄吧！
+        </div>
+
+        <!-- 依日期分組顯示 -->
+        <div v-for="group in groupedEvents" :key="group.dateKey" class="flex flex-col md:flex-row hover:bg-slate-50/50 transition">
+          
+          <!-- 左側日期欄 -->
+          <div class="w-full md:w-28 p-4 bg-slate-50/80 md:bg-transparent border-b md:border-b-0 md:border-r border-slate-100 flex md:flex-col items-center md:items-start justify-between md:justify-start shrink-0">
+            <span class="text-2xl md:text-3xl font-black text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
+            <span class="text-xs font-extrabold text-slate-400 uppercase md:mt-1">{{ group.weekDay }}</span>
+          </div>
+
+          <!-- 右側當天時間列表 (模仿參考圖) -->
+          <div class="flex-1 divide-y divide-slate-50 p-2 md:p-3 space-y-1">
+            <div v-for="item in group.items" :key="item.id" class="flex items-center justify-between p-2 rounded-lg hover:bg-sage-50/60 transition group">
+              
+              <div class="flex items-center space-x-3 md:space-x-4 overflow-hidden">
+                <!-- 時間 -->
+                <span class="text-xs md:text-sm font-mono font-bold text-slate-400 shrink-0 w-11 md:w-12">{{ item.timeStr }}</span>
+                
+                <!-- 平台 Icon/標籤 -->
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold shrink-0 flex items-center gap-1" :class="getPlatformStyle(item.platform)">
+                  {{ item.platform }}
+                </span>
+
+                <!-- 內容標題 (如有連結可點擊) -->
+                <a v-if="item.link" :href="item.link" target="_blank" class="text-xs md:text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate">
+                  {{ item.title }} 🔗
+                </a>
+                <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
+                  {{ item.title }}
+                </span>
+              </div>
+
+              <!-- 操作按鈕 -->
+              <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
+                <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
+                <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ==================== 分頁 2: 月曆視圖 ==================== -->
+    <main v-if="currentTab === 'calendar'" class="space-y-6">
+      <section class="bg-white p-5 rounded-2xl border border-sage-200 shadow-sm space-y-4">
         <div class="flex justify-between items-center pb-2 border-b border-sage-100">
           <div class="flex items-center space-x-3">
             <h2 class="text-xl font-bold text-sage-800">{{ calendarYear }} 年 {{ calendarMonth + 1 }} 月</h2>
             <div class="flex space-x-1">
-              <button @click="prevMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-sm font-bold">‹</button>
-              <button @click="todayMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-xs font-medium">今天</button>
-              <button @click="nextMonth" class="px-2.5 py-1 bg-sage-50 hover:bg-sage-100 text-sage-700 rounded-lg text-sm font-bold">›</button>
+              <button @click="prevMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-sm font-bold">‹</button>
+              <button @click="todayMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-xs font-medium">今天</button>
+              <button @click="nextMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-sm font-bold">›</button>
             </div>
           </div>
-          <button @click="showAddEvent = !showAddEvent" class="px-3.5 py-1.5 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
-            {{ showAddEvent ? '取消' : '+ 新增行程' }}
-          </button>
         </div>
 
-        <!-- 新增日程表單 -->
-        <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-sage-50/60 p-4 rounded-xl border border-sage-200 space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input v-model="newEvent.title" type="text" placeholder="日程名稱 (如: Teaser 1)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
-            <input v-model="newEvent.date" type="datetime-local" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
-            <select v-model="newEvent.category" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
-              <option value="預告卡">📷 概念照/預告</option>
-              <option value="MV/音源">🎧 音源/MV公開</option>
-              <option value="節目/打歌">📺 節目/打歌</option>
-              <option value="簽售/活動">🤝 簽售/活動</option>
-            </select>
-          </div>
-          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">新增行程至月曆</button>
-        </form>
-
-        <!-- 月曆 星期標頭 -->
-        <div class="grid grid-cols-7 gap-1 text-center text-xs md:text-sm font-semibold text-sage-600 pb-1">
+        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-sage-600 pb-1">
           <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
         </div>
 
-        <!-- 月曆 Grid 網格 (設定適中舒適的固定高度) -->
         <div class="grid grid-cols-7 gap-1.5 md:gap-2">
-          <div 
-            v-for="(day, idx) in calendarDays" 
-            :key="idx" 
-            class="min-h-[85px] md:min-h-[115px] p-1.5 border rounded-xl flex flex-col justify-between transition"
-            :class="{
-              'bg-slate-50/50 border-transparent opacity-40': !day.isCurrentMonth,
-              'bg-white border-slate-100': day.isCurrentMonth,
-              'border-sage-500 bg-sage-100/40 ring-1 ring-sage-300': day.isToday
-            }">
+          <div v-for="(day, idx) in calendarDays" :key="idx" class="min-h-[85px] md:min-h-[110px] p-1.5 border rounded-xl flex flex-col justify-between"
+            :class="{ 'bg-slate-50/50 opacity-40': !day.isCurrentMonth, 'bg-white': day.isCurrentMonth, 'border-sage-500 bg-sage-100/40': day.isToday }">
             <div class="text-right">
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-sage-600 text-white' : 'text-slate-600'">
-                {{ day.dayNumber }}
-              </span>
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-sage-600 text-white' : 'text-slate-600'">{{ day.dayNumber }}</span>
             </div>
-            <!-- 當天日程標籤 -->
-            <div class="space-y-1 mt-1 overflow-y-auto max-h-[60px] md:max-h-[80px] scrollbar-none">
-              <div 
-                v-for="event in day.events" 
-                :key="event.id"
-                class="text-[10px] md:text-xs p-1 rounded font-medium cursor-pointer break-words leading-tight"
-                :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800 border border-sage-200'"
-                :title="event.title">
+            <div class="space-y-1 mt-1 overflow-y-auto max-h-[60px] no-scrollbar">
+              <div v-for="event in day.events" :key="event.id" class="text-[10px] md:text-xs p-1 rounded font-medium truncate"
+                :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800'">
                 {{ event.title }}
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- 日程清單列表 -->
-      <section class="bg-white p-6 rounded-2xl border border-sage-200 shadow-sm space-y-3">
-        <h3 class="text-base font-bold text-sage-800 border-b border-sage-100 pb-2">📋 所有行程清單 ({{ events.length }})</h3>
-        <div v-if="events.length === 0" class="text-center py-6 text-slate-400 text-sm">目前還沒有行程，快點擊上方「+ 新增行程」吧！</div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div v-for="event in sortedEvents" :key="event.id" class="flex items-center justify-between p-3 rounded-xl border border-slate-100" :class="event.completed ? 'bg-slate-50 text-slate-400' : 'bg-white'">
-            <div class="flex items-center space-x-3">
-              <input type="checkbox" :checked="event.completed" @change="toggleEventStatus(event)" class="w-4 h-4 text-sage-600 rounded border-sage-300 focus:ring-sage-500">
-              <div>
-                <span class="text-xs px-2 py-0.5 rounded bg-sage-100 text-sage-700 font-semibold mr-2">{{ event.category }}</span>
-                <span class="font-medium text-sm" :class="{ 'line-through': event.completed }">{{ event.title }}</span>
-                <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(event.date) }}</p>
-              </div>
-            </div>
-            <button @click="deleteEvent(event.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
-          </div>
-        </div>
-      </section>
     </main>
 
-    <!-- ==================== 分頁 2: 周邊購物記帳 ==================== -->
+    <!-- ==================== 分頁 3: 周邊購物記帳 ==================== -->
     <main v-if="currentTab === 'merch'" class="space-y-6">
-      
-      <!-- 統計概覽卡片 -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
           <span class="text-xs font-semibold text-slate-400">總支出金額</span>
@@ -176,7 +207,6 @@
         </div>
       </section>
 
-      <!-- 周邊清單區塊 -->
       <section class="bg-white p-6 rounded-2xl border border-sage-200 shadow-sm space-y-4">
         <div class="flex justify-between items-center border-b border-sage-100 pb-3">
           <h2 class="text-lg font-bold text-sage-800">🛒 周邊與小卡清單</h2>
@@ -185,22 +215,20 @@
           </button>
         </div>
 
-        <!-- 新增商品表單 -->
         <form v-if="showAddMerch" @submit.prevent="addMerch" class="bg-sage-50/60 p-4 rounded-xl border border-sage-200 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
-            <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
-            <select v-model="newMerch.status" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border rounded-lg text-sm">
+            <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border rounded-lg text-sm">
+            <select v-model="newMerch.status" class="p-2 border rounded-lg text-sm">
               <option value="待付款">⏳ 待付款</option>
               <option value="已付款">✅ 已付款/待出貨</option>
               <option value="已收到">📦 已收到</option>
             </select>
-            <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border border-sage-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-300">
+            <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border rounded-lg text-sm">
           </div>
-          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">儲存購物紀錄</button>
+          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700">儲存購物紀錄</button>
         </form>
 
-        <!-- 周邊表格 -->
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead>
@@ -217,11 +245,7 @@
                 <td class="py-3 font-medium text-slate-700">{{ item.name }}</td>
                 <td class="py-3">
                   <span class="text-xs px-2.5 py-1 rounded-full font-medium" 
-                    :class="{
-                      'bg-amber-100 text-amber-700': item.status === '待付款',
-                      'bg-sage-100 text-sage-800': item.status === '已付款',
-                      'bg-emerald-100 text-emerald-700': item.status === '已收到'
-                    }">
+                    :class="{ 'bg-amber-100 text-amber-700': item.status === '待付款', 'bg-sage-100 text-sage-800': item.status === '已付款', 'bg-emerald-100 text-emerald-700': item.status === '已收到' }">
                     {{ item.status }}
                   </span>
                 </td>
@@ -230,9 +254,6 @@
                 <td class="py-3 text-right">
                   <button @click="deleteMerch(item.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
                 </td>
-              </tr>
-              <tr v-if="merchList.length === 0">
-                <td colspan="5" class="text-center py-6 text-slate-400">目前尚無購物紀錄</td>
               </tr>
             </tbody>
           </table>
@@ -265,13 +286,13 @@
 
     createApp({
       setup() {
-        const currentTab = ref('calendar');
+        const currentTab = ref('timeline'); // 預設打開流水帳頁面
         const events = ref([]);
         const merchList = ref([]);
         const showAddEvent = ref(false);
         const showAddMerch = ref(false);
 
-        const newEvent = ref({ title: '', date: '', category: '預告卡', completed: false });
+        const newEvent = ref({ title: '', date: '', platform: 'Instagram', link: '', completed: false });
         const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
 
         const today = new Date();
@@ -289,14 +310,48 @@
           });
         });
 
+        // 將行程按日期 (YYYY-MM-DD) 分組計算
+        const groupedEvents = computed(() => {
+          const groups = {};
+          const sorted = [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          sorted.forEach(item => {
+            if (!item.date) return;
+            const d = new Date(item.date);
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const dayNum = String(d.getDate()).padStart(2, '0');
+            const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const weekDay = weekDays[d.getDay()];
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+            if (!groups[dateKey]) {
+              groups[dateKey] = { dateKey, dayNum, weekDay, items: [] };
+            }
+            groups[dateKey].items.push({ ...item, timeStr });
+          });
+
+          return Object.values(groups);
+        });
+
+        // 平台 Icon / 配色標籤
+        const getPlatformStyle = (platform) => {
+          switch (platform) {
+            case 'Instagram': return 'bg-pink-100 text-pink-700';
+            case 'YouTube': return 'bg-red-100 text-red-700';
+            case 'X': return 'bg-slate-800 text-white';
+            case 'Weverse': return 'bg-emerald-100 text-emerald-700';
+            case '官方預告': return 'bg-indigo-100 text-indigo-700';
+            default: return 'bg-sage-100 text-sage-800';
+          }
+        };
+
+        // 月曆邏輯
         const calendarDays = computed(() => {
           const year = calendarYear.value;
           const month = calendarMonth.value;
-          
           const firstDay = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const prevMonthDays = new Date(year, month, 0).getDate();
-
           const days = [];
 
           for (let i = firstDay - 1; i >= 0; i--) {
@@ -306,13 +361,11 @@
           const now = new Date();
           for (let d = 1; d <= daysInMonth; d++) {
             const isToday = (year === now.getFullYear() && month === now.getMonth() && d === now.getDate());
-            
             const dayEvents = events.value.filter(e => {
               if (!e.date) return false;
               const ed = new Date(e.date);
               return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d;
             });
-
             days.push({ dayNumber: d, isCurrentMonth: true, isToday, events: dayEvents });
           }
 
@@ -321,38 +374,19 @@
           for (let i = 1; i <= remaining; i++) {
             days.push({ dayNumber: i, isCurrentMonth: false, isToday: false, events: [] });
           }
-
           return days;
         });
 
-        const prevMonth = () => {
-          if (calendarMonth.value === 0) {
-            calendarMonth.value = 11;
-            calendarYear.value--;
-          } else {
-            calendarMonth.value--;
-          }
-        };
-        const nextMonth = () => {
-          if (calendarMonth.value === 11) {
-            calendarMonth.value = 0;
-            calendarYear.value++;
-          } else {
-            calendarMonth.value++;
-          }
-        };
-        const todayMonth = () => {
-          calendarYear.value = new Date().getFullYear();
-          calendarMonth.value = new Date().getMonth();
-        };
+        const prevMonth = () => { calendarMonth.value === 0 ? (calendarMonth.value = 11, calendarYear.value--) : calendarMonth.value--; };
+        const nextMonth = () => { calendarMonth.value === 11 ? (calendarMonth.value = 0, calendarYear.value++) : calendarMonth.value++; };
+        const todayMonth = () => { calendarYear.value = new Date().getFullYear(); calendarMonth.value = new Date().getMonth(); };
 
-        const sortedEvents = computed(() => [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date)));
         const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
         const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
 
         const addEvent = async () => {
           await push(dbRef(db, 'events'), newEvent.value);
-          newEvent.value = { title: '', date: '', category: '預告卡', completed: false };
+          newEvent.value = { title: '', date: '', platform: 'Instagram', link: '', completed: false };
           showAddEvent.value = false;
         };
         const toggleEventStatus = async (event) => {
@@ -371,16 +405,11 @@
           await remove(dbRef(db, `merch/${id}`));
         };
 
-        const formatDate = (dateStr) => {
-          if (!dateStr) return '';
-          return new Date(dateStr).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        };
-
         return {
-          currentTab, events, sortedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
+          currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
           calendarYear, calendarMonth, calendarDays, prevMonth, nextMonth, todayMonth,
-          totalPrice, pendingItemsCount,
-          addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch, formatDate
+          totalPrice, pendingItemsCount, getPlatformStyle,
+          addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch
         };
       }
     }).mount('#app');
