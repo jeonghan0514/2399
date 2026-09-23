@@ -12,27 +12,34 @@
 <body class="bg-slate-50 text-slate-800 p-4 md:p-8 min-h-screen">
   <div id="app" class="max-w-4xl mx-auto space-y-6">
     
-    <!-- 頁首標題 -->
-    <header class="bg-gradient-to-r from-rose-400 to-indigo-400 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div>
-        <h1 class="text-2xl md:text-3xl font-bold tracking-wide">💎 2399 漢秀回歸紀錄帳本</h1>
-        <p class="text-rose-100 mt-1 text-sm">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
+    <!-- 頁首標題（套用自訂 Banner 背景圖） -->
+    <header class="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+      <!-- 背景圖片區塊 -->
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
+      <!-- 半透明遮罩，確保文字清楚 readable -->
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
+
+      <div class="relative z-10 p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-wide drop-shadow-md">💎 2399 漢秀回歸紀錄帳本</h1>
+          <p class="text-slate-100 mt-1 text-sm drop-shadow">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
+        </div>
+        <!-- Tab 頁籤導覽按鈕 -->
+        <nav class="flex bg-black/40 backdrop-blur-md p-1 rounded-xl w-full md:w-auto border border-white/20">
+          <button 
+            @click="currentTab = 'calendar'" 
+            :class="currentTab === 'calendar' ? 'bg-white text-slate-900 shadow font-bold' : 'text-white hover:bg-white/10'"
+            class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
+            📅 回歸日程
+          </button>
+          <button 
+            @click="currentTab = 'merch'" 
+            :class="currentTab === 'merch' ? 'bg-white text-slate-900 shadow font-bold' : 'text-white hover:bg-white/10'"
+            class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
+            🛒 周邊購物
+          </button>
+        </nav>
       </div>
-      <!-- Tab 頁籤導覽按鈕 -->
-      <nav class="flex bg-white/20 backdrop-blur-md p-1 rounded-xl w-full md:w-auto">
-        <button 
-          @click="currentTab = 'calendar'" 
-          :class="currentTab === 'calendar' ? 'bg-white text-indigo-600 shadow' : 'text-white hover:bg-white/10'"
-          class="flex-1 md:flex-none px-5 py-2 rounded-lg font-bold text-sm transition">
-          📅 回歸日程
-        </button>
-        <button 
-          @click="currentTab = 'merch'" 
-          :class="currentTab === 'merch' ? 'bg-white text-rose-500 shadow' : 'text-white hover:bg-white/10'"
-          class="flex-1 md:flex-none px-5 py-2 rounded-lg font-bold text-sm transition">
-          🛒 周邊購物
-        </button>
-      </nav>
     </header>
 
     <!-- ==================== 分頁 1: 回歸日程 (月曆視圖) ==================== -->
@@ -242,7 +249,6 @@
         const calendarYear = ref(today.getFullYear());
         const calendarMonth = ref(today.getMonth());
 
-        // 即時監聽 Realtime Database 資料
         onMounted(() => {
           onValue(dbRef(db, 'events'), (snapshot) => {
             const data = snapshot.val();
@@ -254,7 +260,6 @@
           });
         });
 
-        // 月曆網格計算
         const calendarDays = computed(() => {
           const year = calendarYear.value;
           const month = calendarMonth.value;
@@ -316,7 +321,6 @@
         const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
         const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
 
-        // Realtime Database 寫入/修改/刪除
         const addEvent = async () => {
           await push(dbRef(db, 'events'), newEvent.value);
           newEvent.value = { title: '', date: '', category: '預告卡', completed: false };
