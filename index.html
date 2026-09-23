@@ -86,7 +86,7 @@
         </button>
       </div>
 
-      <!-- 新增行程表單 (支援網址與平台類別) -->
+      <!-- 新增行程表單 -->
       <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-3">
         <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -94,12 +94,12 @@
           <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
           
           <select v-model="newEvent.platform" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
-            <option value="Instagram">📷 Instagram</option>
-            <option value="YouTube">🔴 YouTube / LIVE</option>
-            <option value="X">✖️ X (Twitter)</option>
-            <option value="Weverse">💬 Weverse</option>
-            <option value="官方預告">💿 官方發售/預告</option>
-            <option value="節目活動">📺 節目/簽售</option>
+            <option value="Instagram">Instagram (📷)</option>
+            <option value="YouTube">YouTube / LIVE (🔴)</option>
+            <option value="X">X / Twitter (✖️)</option>
+            <option value="Weverse">Weverse (💬)</option>
+            <option value="官方預告">官方發售/預告 (💿)</option>
+            <option value="節目活動">節目/簽售 (📺)</option>
           </select>
 
           <input v-model="newEvent.link" type="url" placeholder="貼上網址 (例如: https://instagram.com/p/...)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
@@ -131,18 +131,18 @@
                 <!-- 時間 -->
                 <span class="text-xs md:text-sm font-mono font-bold text-slate-400 shrink-0 w-11 md:w-12">{{ item.timeStr }}</span>
                 
-                <!-- 平台 Icon/標籤 -->
-                <span class="px-2 py-0.5 rounded text-[11px] font-bold shrink-0 flex items-center gap-1" :class="getPlatformStyle(item.platform)">
-                  {{ item.platform }}
-                </span>
+                <!-- 圓形 Icon 標籤 (Circle Badge) -->
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs" :class="getCircleIconStyle(item.platform)" :title="item.platform">
+                  {{ getPlatformSymbol(item.platform) }}
+                </div>
 
                 <!-- 動態標題（點擊可開啟外連網址） -->
                 <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                   class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1 truncate"
+                   class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                    :class="{ 'line-through text-slate-400': item.completed }"
                    title="點擊開啟外連網址">
                   <span>{{ item.title }}</span>
-                  <span class="text-xs text-sage-600">🔗</span>
+                  <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
                 </a>
                 <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
                   {{ item.title }}
@@ -339,14 +339,27 @@
           return Object.values(groups);
         });
 
-        const getPlatformStyle = (platform) => {
+        // 圓形 Icon 顏色搭配
+        const getCircleIconStyle = (platform) => {
           switch (platform) {
-            case 'Instagram': return 'bg-pink-100 text-pink-700';
-            case 'YouTube': return 'bg-red-100 text-red-700';
-            case 'X': return 'bg-slate-800 text-white';
-            case 'Weverse': return 'bg-emerald-100 text-emerald-700';
-            case '官方預告': return 'bg-indigo-100 text-indigo-700';
-            default: return 'bg-sage-100 text-sage-800';
+            case 'Instagram': return 'bg-gradient-to-tr from-amber-200 via-rose-300 to-purple-300 text-purple-900';
+            case 'YouTube': return 'bg-red-500 text-white';
+            case 'X': return 'bg-slate-900 text-white';
+            case 'Weverse': return 'bg-emerald-400 text-white';
+            case '官方預告': return 'bg-indigo-500 text-white';
+            default: return 'bg-sage-600 text-white';
+          }
+        };
+
+        // 圓形 Icon 內部的符號
+        const getPlatformSymbol = (platform) => {
+          switch (platform) {
+            case 'Instagram': return '📷';
+            case 'YouTube': return '▶';
+            case 'X': return '𝕏';
+            case 'Weverse': return 'W';
+            case '官方預告': return '💿';
+            default: return '📺';
           }
         };
 
@@ -412,7 +425,7 @@
         return {
           currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
           calendarYear, calendarMonth, calendarDays, prevMonth, nextMonth, todayMonth,
-          totalPrice, pendingItemsCount, getPlatformStyle,
+          totalPrice, pendingItemsCount, getCircleIconStyle, getPlatformSymbol,
           addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch
         };
       }
