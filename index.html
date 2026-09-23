@@ -29,7 +29,6 @@
     }
   </script>
   <style>
-    /* 隱藏滾動條但保持滾動 */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -73,7 +72,7 @@
       </div>
     </header>
 
-    <!-- ==================== 分頁 1: 回歸時間軸流水帳 (參考圖版型) ==================== -->
+    <!-- ==================== 分頁 1: 回歸時間軸流水帳 ==================== -->
     <main v-if="currentTab === 'timeline'" class="space-y-4">
       
       <!-- 控制列與新增按鈕 -->
@@ -87,12 +86,13 @@
         </button>
       </div>
 
-      <!-- 新增行程表單 -->
+      <!-- 新增行程表單 (支援網址與平台類別) -->
       <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-3">
         <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: Instagram 更新 / Teaser 1)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
           <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+          
           <select v-model="newEvent.platform" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
             <option value="Instagram">📷 Instagram</option>
             <option value="YouTube">🔴 YouTube / LIVE</option>
@@ -101,7 +101,8 @@
             <option value="官方預告">💿 官方發售/預告</option>
             <option value="節目活動">📺 節目/簽售</option>
           </select>
-          <input v-model="newEvent.link" type="text" placeholder="連結網址 (選填)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+
+          <input v-model="newEvent.link" type="url" placeholder="貼上網址 (例如: https://instagram.com/p/...)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
         </div>
         <button type="submit" class="w-full py-2.5 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">儲存至時間軸</button>
       </form>
@@ -122,7 +123,7 @@
             <span class="text-xs font-extrabold text-slate-400 uppercase md:mt-1">{{ group.weekDay }}</span>
           </div>
 
-          <!-- 右側當天時間列表 (模仿參考圖) -->
+          <!-- 右側當天時間列表 -->
           <div class="flex-1 divide-y divide-slate-50 p-2 md:p-3 space-y-1">
             <div v-for="item in group.items" :key="item.id" class="flex items-center justify-between p-2 rounded-lg hover:bg-sage-50/60 transition group">
               
@@ -135,9 +136,13 @@
                   {{ item.platform }}
                 </span>
 
-                <!-- 內容標題 (如有連結可點擊) -->
-                <a v-if="item.link" :href="item.link" target="_blank" class="text-xs md:text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate">
-                  {{ item.title }} 🔗
+                <!-- 動態標題（點擊可開啟外連網址） -->
+                <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
+                   class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1 truncate"
+                   :class="{ 'line-through text-slate-400': item.completed }"
+                   title="點擊開啟外連網址">
+                  <span>{{ item.title }}</span>
+                  <span class="text-xs text-sage-600">🔗</span>
                 </a>
                 <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
                   {{ item.title }}
@@ -184,10 +189,12 @@
               <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-sage-600 text-white' : 'text-slate-600'">{{ day.dayNumber }}</span>
             </div>
             <div class="space-y-1 mt-1 overflow-y-auto max-h-[60px] no-scrollbar">
-              <div v-for="event in day.events" :key="event.id" class="text-[10px] md:text-xs p-1 rounded font-medium truncate"
-                :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800'">
-                {{ event.title }}
-              </div>
+              <a v-for="event in day.events" :key="event.id" 
+                 :href="event.link || '#'" :target="event.link ? '_blank' : '_self'"
+                 class="block text-[10px] md:text-xs p-1 rounded font-medium truncate"
+                 :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800 hover:bg-sage-200'">
+                {{ event.title }} {{ event.link ? '🔗' : '' }}
+              </a>
             </div>
           </div>
         </div>
@@ -286,7 +293,7 @@
 
     createApp({
       setup() {
-        const currentTab = ref('timeline'); // 預設打開流水帳頁面
+        const currentTab = ref('timeline');
         const events = ref([]);
         const merchList = ref([]);
         const showAddEvent = ref(false);
@@ -310,7 +317,6 @@
           });
         });
 
-        // 將行程按日期 (YYYY-MM-DD) 分組計算
         const groupedEvents = computed(() => {
           const groups = {};
           const sorted = [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -333,7 +339,6 @@
           return Object.values(groups);
         });
 
-        // 平台 Icon / 配色標籤
         const getPlatformStyle = (platform) => {
           switch (platform) {
             case 'Instagram': return 'bg-pink-100 text-pink-700';
@@ -345,7 +350,6 @@
           }
         };
 
-        // 月曆邏輯
         const calendarDays = computed(() => {
           const year = calendarYear.value;
           const month = calendarMonth.value;
