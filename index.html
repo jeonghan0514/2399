@@ -206,14 +206,15 @@
 
   </div>
 
-  <!-- Firebase 模組與 Logic -->
+  <!-- Realtime Database 模組載入與 Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getDatabase, ref as dbRef, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
       authDomain: "project-7363487371782368090.firebaseapp.com",
+      databaseURL: "https://project-7363487371782368090-default-rtdb.firebaseio.com",
       projectId: "project-7363487371782368090",
       storageBucket: "project-7363487371782368090.firebasestorage.app",
       messagingSenderId: "237945111149",
@@ -222,13 +223,13 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
 
     const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
       setup() {
-        const currentTab = ref('calendar'); // 'calendar' | 'merch'
+        const currentTab = ref('calendar');
         const events = ref([]);
         const merchList = ref([]);
         const showAddEvent = ref(false);
@@ -237,22 +238,23 @@
         const newEvent = ref({ title: '', date: '', category: '預告卡', completed: false });
         const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
 
-        // 月曆邏輯變數
         const today = new Date();
         const calendarYear = ref(today.getFullYear());
         const calendarMonth = ref(today.getMonth());
 
-        // 讀取 Firebase 資料
+        // 即時監聽 Realtime Database 資料
         onMounted(() => {
-          onSnapshot(collection(db, "events"), (snapshot) => {
-            events.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          onValue(dbRef(db, 'events'), (snapshot) => {
+            const data = snapshot.val();
+            events.value = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
           });
-          onSnapshot(collection(db, "merch"), (snapshot) => {
-            merchList.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          onValue(dbRef(db, 'merch'), (snapshot) => {
+            const data = snapshot.val();
+            merchList.value = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
           });
         });
 
-        // 月曆天數計算
+        // 月曆網格計算
         const calendarDays = computed(() => {
           const year = calendarYear.value;
           const month = calendarMonth.value;
@@ -263,17 +265,14 @@
 
           const days = [];
 
-          // 上個月補位天數
           for (let i = firstDay - 1; i >= 0; i--) {
             days.push({ dayNumber: prevMonthDays - i, isCurrentMonth: false, isToday: false, events: [] });
           }
 
-          // 當月天數
           const now = new Date();
           for (let d = 1; d <= daysInMonth; d++) {
             const isToday = (year === now.getFullYear() && month === now.getMonth() && d === now.getDate());
             
-            // 抓出當天的行程
             const dayEvents = events.value.filter(e => {
               if (!e.date) return false;
               const ed = new Date(e.date);
@@ -283,7 +282,6 @@
             days.push({ dayNumber: d, isCurrentMonth: true, isToday, events: dayEvents });
           }
 
-          // 下個月補位天數 (補滿 35 或 42 格)
           const totalCells = days.length > 35 ? 42 : 35;
           const remaining = totalCells - days.length;
           for (let i = 1; i <= remaining; i++) {
@@ -293,7 +291,6 @@
           return days;
         });
 
-        // 月曆切換控制
         const prevMonth = () => {
           if (calendarMonth.value === 0) {
             calendarMonth.value = 11;
@@ -315,31 +312,30 @@
           calendarMonth.value = new Date().getMonth();
         };
 
-        // 計算屬性
         const sortedEvents = computed(() => [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date)));
         const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
         const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
 
-        // Firebase 操作
+        // Realtime Database 寫入/修改/刪除
         const addEvent = async () => {
-          await addDoc(collection(db, "events"), newEvent.value);
+          await push(dbRef(db, 'events'), newEvent.value);
           newEvent.value = { title: '', date: '', category: '預告卡', completed: false };
           showAddEvent.value = false;
         };
         const toggleEventStatus = async (event) => {
-          await updateDoc(doc(db, "events", event.id), { completed: !event.completed });
+          await update(dbRef(db, `events/${event.id}`), { completed: !event.completed });
         };
         const deleteEvent = async (id) => {
-          await deleteDoc(doc(db, "events", id));
+          await remove(dbRef(db, `events/${id}`));
         };
 
         const addMerch = async () => {
-          await addDoc(collection(db, "merch"), newMerch.value);
+          await push(dbRef(db, 'merch'), newMerch.value);
           newMerch.value = { name: '', price: null, status: '已付款', note: '' };
           showAddMerch.value = false;
         };
         const deleteMerch = async (id) => {
-          await deleteDoc(doc(db, "merch", id));
+          await remove(dbRef(db, `merch/${id}`));
         };
 
         const formatDate = (dateStr) => {
