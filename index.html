@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💎 2399 漢秀回歸 & 周邊紀錄帳本</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 md:p-8">
+  <div id="app" class="max-w-4xl mx-auto space-y-8">
+    
+    <!-- 頁首標題 -->
+    <header class="bg-gradient-to-r from-rose-400 to-indigo-400 rounded-2xl p-6 text-white shadow-lg">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-wide">💎 2399 漢秀回歸 & 周邊紀錄帳本</h1>
+      <p class="text-rose-100 mt-1 text-sm">跨裝置即時同步 ‧ 追蹤打歌期日程與周邊戰利品</p>
+    </header>
+
+    <!-- 1. 概覽統計卡片 -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400">總支出金額</span>
+        <p class="text-2xl font-extrabold text-rose-500 mt-1">NT$ {{ totalPrice }}</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400">待付款 / 預購品項</span>
+        <p class="text-2xl font-extrabold text-amber-500 mt-1">{{ pendingItemsCount }} 項</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400">回歸倒數日程</span>
+        <p class="text-2xl font-extrabold text-indigo-500 mt-1">{{ upcomingEventsCount }} 個未完成</p>
+      </div>
+    </section>
+
+    <!-- 2. 回歸行程表 -->
+    <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h2 class="text-lg font-bold text-slate-700">📅 回歸日程表</h2>
+        <button @click="showAddEvent = !showAddEvent" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+          {{ showAddEvent ? '取消' : '+ 新增日程' }}
+        </button>
+      </div>
+
+      <!-- 新增日程表單 -->
+      <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-slate-50 p-4 rounded-xl space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input v-model="newEvent.title" type="text" placeholder="日程名稱 (如: Teaser 1)" required class="p-2 border rounded-lg text-sm">
+          <input v-model="newEvent.date" type="datetime-local" required class="p-2 border rounded-lg text-sm">
+          <select v-model="newEvent.category" class="p-2 border rounded-lg text-sm">
+            <option value="預告卡">📷 概念照/預告</option>
+            <option value="MV/音源">🎧 音源/MV公開</option>
+            <option value="節目/打歌">📺 節目/打歌</option>
+            <option value="簽售/活動">🤝 簽售/活動</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-600">儲存至雲端</button>
+      </form>
+
+      <!-- 日程清單 -->
+      <div class="space-y-3">
+        <div v-for="event in events" :key="event.id" class="flex items-center justify-between p-3 rounded-xl border" :class="event.completed ? 'bg-slate-100 text-slate-400' : 'bg-white'">
+          <div class="flex items-center space-x-3">
+            <input type="checkbox" :checked="event.completed" @change="toggleEventStatus(event)" class="w-4 h-4 text-indigo-600 rounded">
+            <div>
+              <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 font-semibold mr-2">{{ event.category }}</span>
+              <span class="font-medium" :class="{ 'line-through': event.completed }">{{ event.title }}</span>
+              <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(event.date) }}</p>
+            </div>
+          </div>
+          <button @click="deleteEvent(event.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 周邊與花費紀錄 -->
+    <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h2 class="text-lg font-bold text-slate-700">🛒 周邊與小卡清單</h2>
+        <button @click="showAddMerch = !showAddMerch" class="px-3 py-1 bg-rose-500 text-white rounded-lg text-sm font-medium hover:bg-rose-600 transition">
+          {{ showAddMerch ? '取消' : '+ 新增消費紀錄' }}
+        </button>
+      </div>
+
+      <!-- 新增商品表單 -->
+      <form v-if="showAddMerch" @submit.prevent="addMerch" class="bg-slate-50 p-4 rounded-xl space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border rounded-lg text-sm">
+          <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border rounded-lg text-sm">
+          <select v-model="newMerch.status" class="p-2 border rounded-lg text-sm">
+            <option value="待付款">⏳ 待付款</option>
+            <option value="已付款">✅ 已付款/待出貨</option>
+            <option value="已收到">📦 已收到</option>
+          </select>
+          <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border rounded-lg text-sm">
+        </div>
+        <button type="submit" class="w-full py-2 bg-rose-500 text-white rounded-lg text-sm font-semibold hover:bg-rose-600">儲存至雲端</button>
+      </form>
+
+      <!-- 周邊清單表格 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="text-xs text-slate-400 border-b">
+              <th class="pb-2">品項名稱</th>
+              <th class="pb-2">狀態</th>
+              <th class="pb-2">金額</th>
+              <th class="pb-2">備註</th>
+              <th class="pb-2 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="item in merchList" :key="item.id">
+              <td class="py-3 font-medium">{{ item.name }}</td>
+              <td class="py-3">
+                <span class="text-xs px-2 py-1 rounded-full font-medium" 
+                  :class="{
+                    'bg-amber-100 text-amber-700': item.status === '待付款',
+                    'bg-blue-100 text-blue-700': item.status === '已付款',
+                    'bg-emerald-100 text-emerald-700': item.status === '已收到'
+                  }">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td class="py-3 font-semibold text-rose-500">NT$ {{ item.price }}</td>
+              <td class="py-3 text-slate-400 text-xs">{{ item.note || '-' }}</td>
+              <td class="py-3 text-right">
+                <button @click="deleteMerch(item.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Firebase 模組與 Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 你的 Firebase 專屬設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
+      authDomain: "project-7363487371782368090.firebaseapp.com",
+      projectId: "project-7363487371782368090",
+      storageBucket: "project-7363487371782368090.firebasestorage.app",
+      messagingSenderId: "237945111149",
+      appId: "1:237945111149:web:fab708f30a372137c17564",
+      measurementId: "G-LXNMT3SKBF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const events = ref([]);
+        const merchList = ref([]);
+        const showAddEvent = ref(false);
+        const showAddMerch = ref(false);
+
+        const newEvent = ref({ title: '', date: '', category: '預告卡', completed: false });
+        const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
+
+        // 即時監聽 Firebase 資料庫（跨裝置同步）
+        onMounted(() => {
+          onSnapshot(collection(db, "events"), (snapshot) => {
+            events.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          });
+          onSnapshot(collection(db, "merch"), (snapshot) => {
+            merchList.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          });
+        });
+
+        // 計算屬性
+        const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
+        const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
+        const upcomingEventsCount = computed(() => events.value.filter(e => !e.completed).length);
+
+        // 新增與操作方法
+        const addEvent = async () => {
+          await addDoc(collection(db, "events"), newEvent.value);
+          newEvent.value = { title: '', date: '', category: '預告卡', completed: false };
+          showAddEvent.value = false;
+        };
+        const toggleEventStatus = async (event) => {
+          await updateDoc(doc(db, "events", event.id), { completed: !event.completed });
+        };
+        const deleteEvent = async (id) => {
+          await deleteDoc(doc(db, "events", id));
+        };
+
+        const addMerch = async () => {
+          await addDoc(collection(db, "merch"), newMerch.value);
+          newMerch.value = { name: '', price: null, status: '已付款', note: '' };
+          showAddMerch.value = false;
+        };
+        const deleteMerch = async (id) => {
+          await deleteDoc(doc(db, "merch", id));
+        };
+
+        const formatDate = (dateStr) => {
+          if (!dateStr) return '';
+          return new Date(dateStr).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        };
+
+        return {
+          events, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
+          totalPrice, pendingItemsCount, upcomingEventsCount,
+          addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch, formatDate
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
