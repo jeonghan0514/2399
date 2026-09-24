@@ -128,7 +128,7 @@
             <div v-for="item in group.items" :key="item.id" class="flex items-center justify-between p-2 rounded-lg hover:bg-sage-50/60 transition group">
               
               <div class="flex items-center space-x-3 md:space-x-4 overflow-hidden">
-                <!-- 時間 -->
+                <!-- 時間 (以小時為單位格式，如 13:00) -->
                 <span class="text-xs md:text-sm font-mono font-bold text-slate-400 shrink-0 w-11 md:w-12">{{ item.timeStr }}</span>
                 
                 <!-- 圓形圖片/Icon 標籤 -->
@@ -142,7 +142,7 @@
                   </div>
                 </div>
 
-                <!-- 動態標題（點擊可開啟外連網址） -->
+                <!-- 動態標題 -->
                 <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
                    class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                    :class="{ 'line-through text-slate-400': item.completed }"
@@ -334,7 +334,8 @@
             const dayNum = String(d.getDate()).padStart(2, '0');
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const weekDay = weekDays[d.getDay()];
-            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            // 格式化為整點小時格式 (例如: 13:00, 18:00)
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
             if (!groups[dateKey]) {
               groups[dateKey] = { dateKey, dayNum, weekDay, items: [] };
