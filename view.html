@@ -4,14 +4,7 @@
   <meta charset="UTF-8">
   <!-- 設定固定寬度為 1200px，讓手機開啟時整體自動等比例縮放適合螢幕 -->
   <meta name="viewport" content="width=1200, initial-scale=0.35, maximum-scale=2.0, user-scalable=yes">
-  
-  <!-- 網頁與社群分享標題 -->
   <title>정한X조슈아｜JxJ COMEBACK SCHEDULE</title>
-  <meta property="og:title" content="정한X조슈아｜JxJ COMEBACK SCHEDULE">
-  <meta property="og:description" content="좋아하는 사람은 하염없이 기다리는 거야 💎">
-  <meta property="og:image" content="./banner.jpg">
-  <meta property="og:type" content="website">
-
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 CDN -->
@@ -32,7 +25,6 @@
               700: '#47674D',
               800: '#37503C',
             },
-            // 柔和紅 (用於假日日期與星期文字)
             softred: {
               500: '#E06D53',
               600: '#D96B6B',
@@ -61,24 +53,37 @@
             <p class="text-slate-500 mt-0.5 text-sm font-medium">좋아하는 사람은 하염없이 기다리는 거야 💎</p>
           </div>
         </div>
+
+        <!-- 純觀看標籤 -->
+        <div class="bg-sage-50 border border-sage-200 px-4 py-2 rounded-xl text-sage-700 font-bold text-sm flex items-center gap-1.5">
+          <span>💎</span> 克拉專用觀看頁
+        </div>
       </div>
     </header>
 
-    <!-- 回歸時間軸流水帳 -->
+    <!-- 回歸時間軸流水帳 (純觀看) -->
     <main class="space-y-4">
+      
+      <!-- 控制列 -->
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-sage-200 shadow-sm">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-sage-600"></span>
+          <h2 class="text-lg font-bold text-slate-700">정한X조슈아｜JxJ SCHEDULE</h2>
+        </div>
+      </div>
 
       <!-- 流水帳清單卡片 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
         
         <div v-if="groupedEvents.length === 0" class="p-12 text-center text-slate-400 text-sm">
-          目前還沒有動態紀錄。
+          目前還沒有動態紀錄喔！
         </div>
 
         <!-- 依日期分組顯示 -->
         <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
           
           <!-- 月份分隔橫條 -->
-          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
+          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2 flex items-center justify-between">
             <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
               <span>📅</span> {{ group.monthTitle }}
             </span>
@@ -87,45 +92,43 @@
             </span>
           </div>
 
-          <!-- 當日區塊 -->
-          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
+          <!-- 當日區塊 (完全緊湊垂直置中) -->
+          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row items-center transition py-2.5">
             
             <!-- 左側日期欄 -->
-            <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
-              <div class="flex flex-col items-center justify-center gap-0.5">
+            <div class="w-28 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0 self-stretch">
+              <div class="flex flex-col items-center justify-center gap-0.5 my-auto">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
                 <span class="text-[11px] font-bold uppercase tracking-wide" :class="group.isHoliday ? 'text-softred-500' : 'text-sage-600'">{{ group.weekDay }}</span>
               </div>
             </div>
 
-            <!-- 右側當天時間列表 (小時之間用清晰實線 divide-slate-200) -->
-            <div class="flex-1 divide-y divide-slate-200 p-3 space-y-2">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
+            <!-- 右側當天時間列表 -->
+            <div class="flex-1 divide-y divide-slate-200/60 px-3 space-y-2 my-auto">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 transition first:pt-0 pt-2">
                 
-                <!-- 小時置中標籤 (垂直置中對齊) -->
-                <div class="w-12 shrink-0 text-left self-center">
-                  <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                <!-- 小時置中標籤 -->
+                <div class="w-11 shrink-0 text-left flex items-center">
+                  <span class="text-xs font-mono font-bold text-slate-400 block leading-none">{{ timeBlock.timeStr }}</span>
                 </div>
 
-                <!-- 同一個小時內的多個行程項目 (行程間用 sage-400 鼠尾草綠虛線) -->
+                <!-- 同一個小時內的多個行程項目 -->
                 <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-400/80">
-                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between first:pt-0 pt-2 group min-h-[22px]">
                     
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                      <!-- 圓形 Logo 圖片標籤 -->
-                      <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                    <div class="flex items-center space-x-2 overflow-hidden leading-none">
+                      <!-- 圓形 Logo 圖片標籤 (w-5 h-5 / 20px) -->
+                      <div class="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
                       <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                         title="點擊開啟外連網址">
-                        <span>{{ item.title }}</span>
-                        <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
+                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate leading-none"
+                         title="點擊前往連結">
+                        <span v-html="renderCustomHighlight(item.title, item.highlight)"></span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate">
-                        {{ item.title }}
+                      <span v-else class="text-sm font-medium text-slate-700 truncate leading-none" v-html="renderCustomHighlight(item.title, item.highlight)">
                       </span>
                     </div>
 
@@ -200,6 +203,31 @@
           });
         });
 
+        // 手動輸入關鍵字渲染
+        const renderCustomHighlight = (title, highlight) => {
+          if (!title) return '';
+          if (!highlight) return title;
+
+          const trimmed = highlight.trim();
+          if (!trimmed) return title;
+
+          let colorStyle = 'color: #94A3B8; font-weight: bold;'; // 預設淺灰
+
+          // 淨漢應援原色 Rose Quartz #F7CAC9
+          if (['[정한]', '정한', '[JEONGHAN]', 'JEONGHAN'].includes(trimmed)) {
+            colorStyle = 'color: #F7CAC9; font-weight: bold;';
+          } 
+          // 知秀應援原色 Serenity #92A8D1
+          else if (['[조슈아]', '조슈아', '[JOSHUA]', 'JOSHUA'].includes(trimmed)) {
+            colorStyle = 'color: #92A8D1; font-weight: bold;';
+          }
+
+          const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`(${escaped})`, 'g');
+          
+          return title.replace(regex, `<span style="${colorStyle}">$1</span>`);
+        };
+
         const getPlatformIcon = (platformName) => {
           const found = platformOptions.find(p => p.name === platformName);
           return found ? found.icon : './logo.jpg';
@@ -220,9 +248,7 @@
             const dayOfWeek = d.getDay();
             const weekDay = weekDays[dayOfWeek];
             
-            // 以「小時」為分組單位 (例如 18:00)
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
-
             const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
 
             if (!dateGroups[dateKey]) {
@@ -272,8 +298,7 @@
         });
 
         return {
-          events, groupedEvents,
-          platformOptions, getPlatformIcon
+          events, groupedEvents, platformOptions, getPlatformIcon, renderCustomHighlight
         };
       }
     }).mount('#app');
