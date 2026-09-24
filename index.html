@@ -141,7 +141,7 @@
           <!-- 當日區塊 (底色保持原本白/微綠隔天交替) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
-            <!-- 左側日期欄 (放假日僅文字變柔和紅，底色不變) -->
+            <!-- 左側日期欄 -->
             <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
@@ -273,15 +273,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref as dbRef, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // ✨ 已替換為你的新 JxJ 專屬專案 Config ✨
     const firebaseConfig = {
-      apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
-      authDomain: "project-7363487371782368090.firebaseapp.com",
-      databaseURL: "https://project-7363487371782368090-default-rtdb.firebaseio.com",
-      projectId: "project-7363487371782368090",
-      storageBucket: "project-7363487371782368090.firebasestorage.app",
-      messagingSenderId: "237945111149",
-      appId: "1:237945111149:web:fab708f30a372137c17564",
-      measurementId: "G-LXNMT3SKBF"
+      apiKey: "AIzaSyBSYT-iNksOHfbdG2BRlwJD8YRNmJ7tFys",
+      authDomain: "jxjschedule.firebaseapp.com",
+      databaseURL: "https://jxjschedule-default-rtdb.firebaseio.com",
+      projectId: "jxjschedule",
+      storageBucket: "jxjschedule.firebasestorage.app",
+      messagingSenderId: "407766532126",
+      appId: "1:407766532126:web:45742371eb7c1f00896e0f",
+      measurementId: "G-XCCCGNBHZ3"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -297,19 +298,19 @@
         const showAddEvent = ref(false);
         const showAddMerch = ref(false);
 
-        // 台灣國定假日與連假對照表
+        // 台灣國定假日對照表
         const holidaysMap = {
-          '2026-01-01': true, // 元旦
-          '2026-02-15': true, '2026-02-16': true, '2026-02-17': true, '2026-02-18': true, '2026-02-19': true, '2026-02-20': true, // 春節連假
-          '2026-02-27': true, '2026-02-28': true, // 228連假
-          '2026-04-03': true, '2026-04-04': true, '2026-04-05': true, '2026-04-06': true, // 兒童清明連假
-          '2026-05-01': true, // 勞動節
-          '2026-06-19': true, // 端午節
-          '2026-09-25': true, // 中秋節
-          '2026-09-28': true, // 教師節
-          '2026-10-09': true, '2026-10-10': true, // 國慶連假
-          '2026-10-25': true, '2026-10-26': true, // 光復節
-          '2026-12-25': true  // 行憲紀念日
+          '2026-01-01': true,
+          '2026-02-15': true, '2026-02-16': true, '2026-02-17': true, '2026-02-18': true, '2026-02-19': true, '2026-02-20': true,
+          '2026-02-27': true, '2026-02-28': true,
+          '2026-04-03': true, '2026-04-04': true, '2026-04-05': true, '2026-04-06': true,
+          '2026-05-01': true,
+          '2026-06-19': true,
+          '2026-09-25': true,
+          '2026-09-28': true,
+          '2026-10-09': true, '2026-10-10': true,
+          '2026-10-25': true, '2026-10-26': true,
+          '2026-12-25': true
         };
 
         const platformOptions = [
@@ -355,7 +356,6 @@
             const weekDay = weekDays[dayOfWeek];
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
-            // 週六(6)、週日(0) 或 國定假日 -> 判定為放假
             const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
 
             if (!dateGroups[dateKey]) {
