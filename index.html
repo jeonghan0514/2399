@@ -2,12 +2,9 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <!-- 設定固定寬度為 1200px，讓手機開啟時整體自動等比例縮放適合螢幕 -->
   <meta name="viewport" content="width=1200, initial-scale=0.35, maximum-scale=2.0, user-scalable=yes">
   <title>정한X조슈아｜JxJ COMEBACK SCHEDULE</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Vue 3 CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script>
     tailwind.config = {
@@ -23,16 +20,20 @@
               600: '#5C8363',
               700: '#47674D',
               800: '#37503C',
+            },
+            // 新增柔和紅系列色調
+            softred: {
+              50: '#FFF5F5',
+              100: '#FCE8E6',
+              500: '#E06D53',
+              600: '#D96B6B',
+              700: '#C15252',
             }
           }
         }
       }
     }
   </script>
-  <style>
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 p-6 min-h-screen">
   <div id="app" class="w-[1150px] mx-auto space-y-6">
@@ -49,81 +50,27 @@
           </div>
         </div>
 
-        <!-- 分頁切換 -->
         <nav class="flex bg-sage-50 p-1 rounded-xl border border-sage-200">
-          <button 
-            @click="currentTab = 'timeline'" 
-            :class="currentTab === 'timeline' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
-            class="px-5 py-2 rounded-lg text-sm transition">
-            📋 回歸流水帳 (Timeline)
-          </button>
-          <button 
-            @click="currentTab = 'merch'" 
-            :class="currentTab === 'merch' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
-            class="px-5 py-2 rounded-lg text-sm transition">
-            🛒 周邊購物
-          </button>
+          <button @click="currentTab = 'timeline'" :class="currentTab === 'timeline' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'" class="px-5 py-2 rounded-lg text-sm transition">📋 回歸流水帳 (Timeline)</button>
+          <button @click="currentTab = 'merch'" :class="currentTab === 'merch' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'" class="px-5 py-2 rounded-lg text-sm transition">🛒 周邊購物</button>
         </nav>
       </div>
     </header>
 
-    <!-- ==================== 分頁 1: 回歸時間軸流水帳 ==================== -->
     <main v-if="currentTab === 'timeline'" class="space-y-4">
-      
-      <!-- 控制列與新增按鈕 -->
       <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-sage-200 shadow-sm">
         <div class="flex items-center space-x-2">
           <span class="w-2.5 h-2.5 rounded-full bg-sage-600"></span>
           <h2 class="text-lg font-bold text-slate-700">정한X조슈아｜JxJ SCHEDULE</h2>
         </div>
-        <button @click="showAddEvent = !showAddEvent" class="px-4 py-2 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
+        <button @click="showAddEvent = !showAddEvent" class="px-4 py-2 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 transition">
           {{ showAddEvent ? '取消' : '+ 新增行程/動態' }}
         </button>
       </div>
 
-      <!-- 新增行程表單 -->
-      <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-4">
-        <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
-        
-        <div class="space-y-3">
-          <!-- 平台圖示點選區 -->
-          <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1.5">選擇發布平台 / 標籤 Icon：</label>
-            <div class="flex flex-wrap gap-2.5">
-              <button 
-                type="button"
-                v-for="p in platformOptions" 
-                :key="p.name"
-                @click="newEvent.platform = p.name"
-                :class="newEvent.platform === p.name ? 'ring-2 ring-sage-600 bg-sage-50 border-sage-500 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50'"
-                class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition shadow-2xs">
-                <img :src="p.icon" :alt="p.name" class="w-6 h-6 rounded-full object-cover border border-slate-200">
-                <span class="text-xs text-slate-700">{{ p.name }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-3">
-            <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: Teaser 1 公開 / 打歌節目)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
-            <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
-            <input v-model="newEvent.link" type="url" placeholder="貼上網址 (例如: https://...)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
-          </div>
-        </div>
-
-        <button type="submit" class="w-full py-2.5 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700 transition">儲存至時間軸</button>
-      </form>
-
-      <!-- 流水帳清單卡片 -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
-        
-        <div v-if="groupedEvents.length === 0" class="p-12 text-center text-slate-400 text-sm">
-          目前還沒有動態紀錄，點擊右上角「+ 新增行程/動態」開始紀錄吧！
-        </div>
-
-        <!-- 依日期分組顯示 -->
         <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
           
-          <!-- 月份分隔橫條 -->
           <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
             <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
               <span>📅</span> {{ group.monthTitle }}
@@ -133,140 +80,51 @@
             </span>
           </div>
 
-          <!-- 當日區塊 (套用交替網底) -->
-          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
+          <!-- 當日區塊：若是放假/國定假日/假日，套用 softred 柔和紅色系 -->
+          <div :class="group.isHoliday ? 'bg-softred-50/60' : (gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50')" class="flex flex-row transition">
             
-            <!-- 左側日期欄 -->
-            <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
+            <!-- 左側日期欄：如果是放假日，日期與星期轉為柔和紅字體 -->
+            <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0"
+                 :class="group.isHoliday ? 'bg-softred-100/40' : ''">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <span class="text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
-                <span class="text-[11px] font-bold text-sage-600 uppercase tracking-wide">{{ group.weekDay }}</span>
+                <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
+                <span class="text-[11px] font-bold uppercase tracking-wide" :class="group.isHoliday ? 'text-softred-500' : 'text-sage-600'">{{ group.weekDay }}</span>
+                <span v-if="group.holidayName" class="text-[10px] font-bold text-softred-500 bg-white/80 px-1.5 py-0.5 rounded-full mt-1 border border-softred-100">{{ group.holidayName }}</span>
               </div>
             </div>
 
-            <!-- 右側當天時間列表 -->
+            <!-- 右側時間與內容區塊 -->
             <div class="flex-1 divide-y divide-slate-100/60 p-3 space-y-1">
               <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
-                
-                <!-- 時間置中標籤 -->
                 <div class="w-12 shrink-0 text-left self-center">
                   <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
-
-                <!-- 右側項目 -->
                 <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
                   <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0 group">
-                    
                     <div class="flex items-center space-x-3 overflow-hidden">
-                      <!-- 圓形 Logo 圖片標籤 -->
-                      <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                      <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
-
-                      <!-- 動態標題 -->
-                      <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                         title="點擊開啟外連網址">
+                      <a v-if="item.link" :href="item.link" target="_blank" class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate">
                         <span>{{ item.title }}</span>
                         <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate">
-                        {{ item.title }}
-                      </span>
+                      <span v-else class="text-sm font-medium text-slate-700 truncate">{{ item.title }}</span>
                     </div>
-
-                    <!-- 刪除按鈕 -->
-                    <div class="flex items-center opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
-                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-2 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
-                    </div>
-
                   </div>
                 </div>
-
               </div>
             </div>
 
           </div>
-
         </template>
-
       </div>
-
     </main>
-
-    <!-- ==================== 分頁 2: 周邊購物記帳 ==================== -->
-    <main v-if="currentTab === 'merch'" class="space-y-6">
-      <section class="grid grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
-          <span class="text-xs font-semibold text-slate-400">總支出金額</span>
-          <p class="text-2xl font-extrabold text-sage-700 mt-1">NT$ {{ totalPrice }}</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
-          <span class="text-xs font-semibold text-slate-400">待付款 / 預購品項</span>
-          <p class="text-2xl font-extrabold text-amber-500 mt-1">{{ pendingItemsCount }} 項</p>
-        </div>
-      </section>
-
-      <section class="bg-white p-6 rounded-2xl border border-sage-200 shadow-sm space-y-4">
-        <div class="flex justify-between items-center border-b border-sage-100 pb-3">
-          <h2 class="text-lg font-bold text-sage-800">🛒 周邊與小卡清單</h2>
-          <button @click="showAddMerch = !showAddMerch" class="px-3.5 py-1.5 bg-sage-600 text-white rounded-lg text-sm font-medium hover:bg-sage-700 shadow-sm transition">
-            {{ showAddMerch ? '取消' : '+ 新增消費紀錄' }}
-          </button>
-        </div>
-
-        <form v-if="showAddMerch" @submit.prevent="addMerch" class="bg-sage-50/60 p-4 rounded-xl border border-sage-200 space-y-3">
-          <div class="grid grid-cols-4 gap-3">
-            <input v-model="newMerch.name" type="text" placeholder="品項名稱 (如: 迷你一輯)" required class="p-2 border rounded-lg text-sm">
-            <input v-model.number="newMerch.price" type="number" placeholder="金額 (NT$)" required class="p-2 border rounded-lg text-sm">
-            <select v-model="newMerch.status" class="p-2 border rounded-lg text-sm">
-              <option value="待付款">⏳ 待付款</option>
-              <option value="已付款">✅ 已付款/待出貨</option>
-              <option value="已收到">📦 已收到</option>
-            </select>
-            <input v-model="newMerch.note" type="text" placeholder="備註 (如: 淨漢小卡/跟團代購)" class="p-2 border rounded-lg text-sm">
-          </div>
-          <button type="submit" class="w-full py-2 bg-sage-600 text-white rounded-lg text-sm font-semibold hover:bg-sage-700">儲存購物紀錄</button>
-        </form>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead>
-              <tr class="text-xs text-slate-400 border-b border-sage-100">
-                <th class="pb-2">品項名稱</th>
-                <th class="pb-2">狀態</th>
-                <th class="pb-2">金額</th>
-                <th class="pb-2">備註</th>
-                <th class="pb-2 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-sage-50">
-              <tr v-for="item in merchList" :key="item.id">
-                <td class="py-3 font-medium text-slate-700">{{ item.name }}</td>
-                <td class="py-3">
-                  <span class="text-xs px-2.5 py-1 rounded-full font-medium" 
-                    :class="{ 'bg-amber-100 text-amber-700': item.status === '待付款', 'bg-sage-100 text-sage-800': item.status === '已付款', 'bg-emerald-100 text-emerald-700': item.status === '已收到' }">
-                    {{ item.status }}
-                  </span>
-                </td>
-                <td class="py-3 font-semibold text-sage-700">NT$ {{ item.price }}</td>
-                <td class="py-3 text-slate-400 text-xs">{{ item.note || '-' }}</td>
-                <td class="py-3 text-right">
-                  <button @click="deleteMerch(item.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-
   </div>
 
-  <!-- Realtime Database 模組載入與 Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
@@ -288,9 +146,32 @@
       setup() {
         const currentTab = ref('timeline');
         const events = ref([]);
-        const merchList = ref([]);
-        const showAddEvent = ref(false);
-        const showAddMerch = ref(false);
+
+        // 台灣法定國定假日與補休日列表對照表
+        const holidaysMap = {
+          '2026-01-01': '元旦',
+          '2026-02-15': '小年夜',
+          '2026-02-16': '除夕',
+          '2026-02-17': '初一',
+          '2026-02-18': '初二',
+          '2026-02-19': '初三',
+          '2026-02-20': '補假',
+          '2026-02-27': '228補假',
+          '2026-02-28': '228和平紀念日',
+          '2026-04-03': '兒童節補假',
+          '2026-04-04': '兒童節',
+          '2026-04-05': '清明節',
+          '2026-04-06': '清明節補假',
+          '2026-05-01': '勞動節',
+          '2026-06-19': '端午節',
+          '2026-09-25': '中秋節',
+          '2026-09-28': '教師節',
+          '2026-10-09': '國慶補假',
+          '2026-10-10': '國慶日',
+          '2026-10-25': '光復節',
+          '2026-10-26': '光復節補假',
+          '2026-12-25': '行憲紀念日'
+        };
 
         const platformOptions = [
           { name: 'Instagram', icon: './IG.jpg' },
@@ -300,17 +181,10 @@
           { name: 'Seventeen', icon: './logo.jpg' }
         ];
 
-        const newEvent = ref({ title: '', date: '', platform: 'Instagram', link: '' });
-        const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
-
         onMounted(() => {
           onValue(dbRef(db, 'events'), (snapshot) => {
             const data = snapshot.val();
             events.value = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-          });
-          onValue(dbRef(db, 'merch'), (snapshot) => {
-            const data = snapshot.val();
-            merchList.value = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
           });
         });
 
@@ -331,11 +205,17 @@
             const monthTitle = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
             const dayNum = String(d.getDate()).padStart(2, '0');
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-            const weekDay = weekDays[d.getDay()];
+            const dayOfWeek = d.getDay();
+            const weekDay = weekDays[dayOfWeek];
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
+            // 自動判斷放假：週六(6)、週日(0) 或 在國定假日清單內
+            const isNationalHoliday = holidaysMap[dateKey];
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const isHoliday = isWeekend || Boolean(isNationalHoliday);
+
             if (!dateGroups[dateKey]) {
-              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, timeMap: {}, totalCount: 0 };
+              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, isHoliday, holidayName: isNationalHoliday || '', timeMap: {} };
             }
 
             if (!dateGroups[dateKey].timeMap[timeStr]) {
@@ -343,7 +223,6 @@
             }
 
             dateGroups[dateKey].timeMap[timeStr].push(item);
-            dateGroups[dateKey].totalCount++;
           });
 
           let lastMonthKey = '';
@@ -351,14 +230,7 @@
 
           Object.values(dateGroups).forEach(group => {
             const showMonthHeader = group.monthKey !== lastMonthKey;
-            if (showMonthHeader) {
-              lastMonthKey = group.monthKey;
-            }
-
-            const monthEventCount = sorted.filter(e => {
-              const ed = new Date(e.date);
-              return `${ed.getFullYear()}-${String(ed.getMonth()+1).padStart(2, '0')}` === group.monthKey;
-            }).length;
+            if (showMonthHeader) lastMonthKey = group.monthKey;
 
             const timeBlocks = Object.keys(group.timeMap).map(timeStr => ({
               timeStr,
@@ -366,12 +238,8 @@
             }));
 
             result.push({
-              dateKey: group.dateKey,
-              monthTitle: group.monthTitle,
+              ...group,
               showMonthHeader,
-              monthEventCount,
-              dayNum: group.dayNum,
-              weekDay: group.weekDay,
               timeBlocks
             });
           });
@@ -379,33 +247,7 @@
           return result;
         });
 
-        const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
-        const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
-
-        const addEvent = async () => {
-          await push(dbRef(db, 'events'), newEvent.value);
-          newEvent.value = { title: '', date: '', platform: 'Instagram', link: '' };
-          showAddEvent.value = false;
-        };
-        const deleteEvent = async (id) => {
-          await remove(dbRef(db, `events/${id}`));
-        };
-
-        const addMerch = async () => {
-          await push(dbRef(db, 'merch'), newMerch.value);
-          newMerch.value = { name: '', price: null, status: '已付款', note: '' };
-          showAddMerch.value = false;
-        };
-        const deleteMerch = async (id) => {
-          await remove(dbRef(db, `merch/${id}`));
-        };
-
-        return {
-          currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
-          platformOptions, getPlatformIcon,
-          totalPrice, pendingItemsCount,
-          addEvent, deleteEvent, addMerch, deleteMerch
-        };
+        return { currentTab, events, groupedEvents, platformOptions, getPlatformIcon };
       }
     }).mount('#app');
   </script>
