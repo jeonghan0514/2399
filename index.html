@@ -142,50 +142,50 @@
             </span>
           </div>
 
-          <!-- 當日區塊 -->
-          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
+          <!-- 當日區塊 (垂直置中對齊, 上下無多餘內距) -->
+          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row items-center transition">
             
             <!-- 左側日期欄 -->
-            <div class="w-28 p-3 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
-              <div class="flex flex-col items-center justify-center gap-0.5">
+            <div class="w-28 p-3 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0 self-stretch">
+              <div class="flex flex-col items-center justify-center gap-0.5 my-auto">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
                 <span class="text-[11px] font-bold uppercase tracking-wide" :class="group.isHoliday ? 'text-softred-500' : 'text-sage-600'">{{ group.weekDay }}</span>
               </div>
             </div>
 
-            <!-- 右側當天時間列表 -->
-            <div class="flex-1 divide-y divide-slate-200 p-2.5 space-y-1">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 p-1 rounded hover:bg-sage-100/30 transition pt-1.5 first:pt-0">
+            <!-- 右側當天時間列表 (完全垂直置中) -->
+            <div class="flex-1 divide-y divide-slate-200/60 px-3 py-2 space-y-1.5 my-auto">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 p-1 rounded hover:bg-sage-100/30 transition first:pt-0">
                 
                 <!-- 小時置中標籤 -->
-                <div class="w-11 shrink-0 text-left self-center">
-                  <span class="text-xs font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                <div class="w-11 shrink-0 text-left flex items-center">
+                  <span class="text-xs font-mono font-bold text-slate-400 block leading-none">{{ timeBlock.timeStr }}</span>
                 </div>
 
                 <!-- 同一個小時內的多個行程項目 -->
                 <div class="flex-1 space-y-1.5 divide-y divide-dashed divide-sage-400/80">
-                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1.5 first:pt-0 group">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1.5 first:pt-0 group min-h-[24px]">
                     
-                    <div class="flex items-center space-x-2 overflow-hidden leading-tight">
-                      <!-- 圓形 Logo 圖片標籤 (高與文字同高 w-4 h-4) -->
+                    <div class="flex items-center space-x-2 overflow-hidden leading-none">
+                      <!-- 圓形 Logo 圖片標籤 (高與文字同高) -->
                       <div class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
                       <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate leading-snug"
+                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate leading-none"
                          title="點擊前往連結">
                         <span v-html="renderCustomHighlight(item.title, item.highlight)"></span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate leading-snug" v-html="renderCustomHighlight(item.title, item.highlight)">
+                      <span v-else class="text-sm font-medium text-slate-700 truncate leading-none" v-html="renderCustomHighlight(item.title, item.highlight)">
                       </span>
                     </div>
 
                     <!-- 操作按鈕區 -->
                     <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
-                      <button @click="openEditEventModal(item)" class="text-sage-700 hover:text-sage-900 text-xs px-1.5 py-0.5 rounded hover:bg-sage-100 font-medium">✏️ 修改</button>
-                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1.5 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
+                      <button @click="openEditEventModal(item)" class="text-sage-700 hover:text-sage-900 text-xs px-1.5 py-0.5 rounded hover:bg-sage-100 font-medium leading-none">✏️ 修改</button>
+                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1.5 py-0.5 rounded hover:bg-red-50 leading-none">✕ 刪除</button>
                     </div>
 
                   </div>
