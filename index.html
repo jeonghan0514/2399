@@ -142,7 +142,7 @@
             </span>
           </div>
 
-          <!-- 當日區塊 (完全緊湊垂直置中, 消除多餘底邊距) -->
+          <!-- 當日區塊 (完全緊湊垂直置中) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row items-center transition py-2.5">
             
             <!-- 左側日期欄 -->
@@ -164,11 +164,11 @@
 
                 <!-- 同一個小時內的多個行程項目 -->
                 <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-400/80">
-                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between first:pt-0 pt-2 group min-h-[20px]">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between first:pt-0 pt-2 group min-h-[22px]">
                     
                     <div class="flex items-center space-x-2 overflow-hidden leading-none">
-                      <!-- 圓形 Logo 圖片標籤 (高與文字同高) -->
-                      <div class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                      <!-- 圓形 Logo 圖片標籤 (微調放大至 w-5 h-5 / 20px) -->
+                      <div class="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
@@ -289,7 +289,7 @@
                 @click="editingEvent.platform = p.name"
                 :class="editingEvent.platform === p.name ? 'ring-2 ring-sage-600 bg-sage-50 border-sage-500 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50'"
                 class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition text-xs">
-                <img :src="p.icon" :alt="p.name" class="w-4 h-4 rounded-full object-cover">
+                <img :src="p.icon" :alt="p.name" class="w-5 h-5 rounded-full object-cover">
                 <span>{{ p.name }}</span>
               </button>
             </div>
