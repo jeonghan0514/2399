@@ -128,7 +128,7 @@
         <!-- 依日期分組顯示 -->
         <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
           
-          <!-- 月份分隔橫條（當月份變更時顯示） -->
+          <!-- 月份分隔橫條 -->
           <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
             <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
               <span>📅</span> {{ group.monthTitle }}
@@ -138,10 +138,10 @@
             </span>
           </div>
 
-          <!-- 當日區塊 (套用微綠與純白交替網底) -->
+          <!-- 當日區塊 (套用交替網底) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-col md:flex-row transition">
             
-            <!-- 左側日期欄 (精緻置中、大小適中) -->
+            <!-- 左側日期欄 -->
             <div class="w-full md:w-28 p-3 md:p-4 border-b md:border-b-0 md:border-r border-slate-100/80 flex md:flex-col items-center justify-center text-center shrink-0">
               <div class="flex md:flex-col items-baseline md:items-center justify-center gap-1.5 md:gap-0.5">
                 <span class="text-xl md:text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
@@ -171,20 +171,18 @@
                       <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
                          class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                         :class="{ 'line-through text-slate-400': item.completed }"
                          title="點擊開啟外連網址">
                         <span>{{ item.title }}</span>
                         <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
                       </a>
-                      <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
+                      <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate">
                         {{ item.title }}
                       </span>
                     </div>
 
-                    <!-- 操作按鈕 -->
-                    <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
-                      <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
-                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
+                    <!-- 刪除按鈕 (已移除打勾框框) -->
+                    <div class="flex items-center opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
+                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-2 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
                     </div>
 
                   </div>
@@ -228,8 +226,7 @@
             <div class="space-y-1 mt-1 overflow-y-auto max-h-[60px] no-scrollbar">
               <a v-for="event in day.events" :key="event.id" 
                  :href="event.link || '#'" :target="event.link ? '_blank' : '_self'"
-                 class="block text-[10px] md:text-xs p-1 rounded font-medium truncate"
-                 :class="event.completed ? 'bg-slate-200 text-slate-400 line-through' : 'bg-sage-100 text-sage-800 hover:bg-sage-200'">
+                 class="block text-[10px] md:text-xs p-1 rounded font-medium truncate bg-sage-100 text-sage-800 hover:bg-sage-200">
                 {{ event.title }} {{ event.link ? '🔗' : '' }}
               </a>
             </div>
@@ -310,7 +307,7 @@
   <!-- Realtime Database 模組載入與 Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref as dbRef, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
@@ -344,7 +341,7 @@
           { name: 'Seventeen', icon: './logo.jpg' }
         ];
 
-        const newEvent = ref({ title: '', date: '', platform: 'Instagram', link: '', completed: false });
+        const newEvent = ref({ title: '', date: '', platform: 'Instagram', link: '' });
         const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
 
         const today = new Date();
@@ -403,7 +400,6 @@
               lastMonthKey = group.monthKey;
             }
 
-            // 計算該月總項目數
             const monthEventCount = sorted.filter(e => {
               const ed = new Date(e.date);
               return `${ed.getFullYear()}-${String(ed.getMonth()+1).padStart(2, '0')}` === group.monthKey;
@@ -468,11 +464,8 @@
 
         const addEvent = async () => {
           await push(dbRef(db, 'events'), newEvent.value);
-          newEvent.value = { title: '', date: '', platform: 'Instagram', link: '', completed: false };
+          newEvent.value = { title: '', date: '', platform: 'Instagram', link: '' };
           showAddEvent.value = false;
-        };
-        const toggleEventStatus = async (event) => {
-          await update(dbRef(db, `events/${event.id}`), { completed: !event.completed });
         };
         const deleteEvent = async (id) => {
           await remove(dbRef(db, `events/${id}`));
@@ -492,7 +485,7 @@
           platformOptions, getPlatformIcon,
           calendarYear, calendarMonth, calendarDays, prevMonth, nextMonth, todayMonth,
           totalPrice, pendingItemsCount,
-          addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch
+          addEvent, deleteEvent, addMerch, deleteMerch
         };
       }
     }).mount('#app');
