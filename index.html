@@ -103,7 +103,7 @@
                 @click="newEvent.platform = p.name"
                 :class="newEvent.platform === p.name ? 'ring-2 ring-sage-600 bg-sage-50 border-sage-500 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50'"
                 class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition shadow-2xs">
-                <img :src="p.icon" :alt="p.name" class="w-6 h-6 rounded-full object-cover border border-slate-200">
+                <img :src="p.icon" :alt="p.name" class="w-5 h-5 rounded-full object-cover border border-slate-200">
                 <span class="text-xs text-slate-700">{{ p.name }}</span>
               </button>
             </div>
@@ -133,7 +133,7 @@
         <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
           
           <!-- 月份分隔橫條 -->
-          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
+          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2 flex items-center justify-between">
             <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
               <span>📅</span> {{ group.monthTitle }}
             </span>
@@ -146,7 +146,7 @@
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
             <!-- 左側日期欄 -->
-            <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
+            <div class="w-28 p-3 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
                 <span class="text-[11px] font-bold uppercase tracking-wide" :class="group.isHoliday ? 'text-softred-500' : 'text-sage-600'">{{ group.weekDay }}</span>
@@ -154,38 +154,38 @@
             </div>
 
             <!-- 右側當天時間列表 -->
-            <div class="flex-1 divide-y divide-slate-200 p-3 space-y-2">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
+            <div class="flex-1 divide-y divide-slate-200 p-2.5 space-y-1">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 p-1 rounded hover:bg-sage-100/30 transition pt-1.5 first:pt-0">
                 
                 <!-- 小時置中標籤 -->
-                <div class="w-12 shrink-0 text-left self-center">
-                  <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                <div class="w-11 shrink-0 text-left self-center">
+                  <span class="text-xs font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
                 <!-- 同一個小時內的多個行程項目 -->
-                <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-400/80">
-                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0 group">
+                <div class="flex-1 space-y-1.5 divide-y divide-dashed divide-sage-400/80">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1.5 first:pt-0 group">
                     
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                      <!-- 圓形 Logo 圖片標籤 -->
-                      <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                    <div class="flex items-center space-x-2 overflow-hidden leading-tight">
+                      <!-- 圓形 Logo 圖片標籤 (高與文字同高 w-4 h-4) -->
+                      <div class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
-                      <!-- 動態標題 (直接點擊標題即可跳轉外連) -->
+                      <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate"
+                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate leading-snug"
                          title="點擊前往連結">
                         <span v-html="renderCustomHighlight(item.title, item.highlight)"></span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate" v-html="renderCustomHighlight(item.title, item.highlight)">
+                      <span v-else class="text-sm font-medium text-slate-700 truncate leading-snug" v-html="renderCustomHighlight(item.title, item.highlight)">
                       </span>
                     </div>
 
                     <!-- 操作按鈕區 -->
-                    <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
-                      <button @click="openEditEventModal(item)" class="text-sage-700 hover:text-sage-900 text-xs px-2 py-0.5 rounded hover:bg-sage-100 font-medium">✏️ 修改</button>
-                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-2 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
+                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
+                      <button @click="openEditEventModal(item)" class="text-sage-700 hover:text-sage-900 text-xs px-1.5 py-0.5 rounded hover:bg-sage-100 font-medium">✏️ 修改</button>
+                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1.5 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
                     </div>
 
                   </div>
@@ -289,7 +289,7 @@
                 @click="editingEvent.platform = p.name"
                 :class="editingEvent.platform === p.name ? 'ring-2 ring-sage-600 bg-sage-50 border-sage-500 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50'"
                 class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition text-xs">
-                <img :src="p.icon" :alt="p.name" class="w-5 h-5 rounded-full object-cover">
+                <img :src="p.icon" :alt="p.name" class="w-4 h-4 rounded-full object-cover">
                 <span>{{ p.name }}</span>
               </button>
             </div>
