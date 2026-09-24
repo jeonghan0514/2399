@@ -172,7 +172,7 @@
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
-                      <!-- 動態標題 (根據設定欄位手動高亮關鍵字) -->
+                      <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
                          class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                          title="點擊開啟外連網址">
@@ -432,7 +432,7 @@
           });
         });
 
-        // 根據使用者手動輸入的關鍵字渲染顏色 (官方正統原色應援色)
+        // 手動輸入關鍵字渲染 (修復：保證完整標題顯示)
         const renderCustomHighlight = (title, highlight) => {
           if (!title) return '';
           if (!highlight) return title;
@@ -440,20 +440,19 @@
           const trimmed = highlight.trim();
           if (!trimmed) return title;
 
-          let colorStyle = 'color: #94A3B8; font-weight: bold;'; // 預設淺灰色
+          let colorStyle = 'color: #94A3B8; font-weight: bold;'; // 預設淺灰
 
-          // 淨漢官方正統應援原色 Rose Quartz #F7CAC9
+          // 淨漢應援原色 Rose Quartz #F7CAC9
           if (['[정한]', '정한', '[JEONGHAN]', 'JEONGHAN'].includes(trimmed)) {
             colorStyle = 'color: #F7CAC9; font-weight: bold;';
           } 
-          // 知秀官方正統應援原色 Serenity #92A8D1
+          // 知秀應援原色 Serenity #92A8D1
           else if (['[조슈아]', '조슈아', '[JOSHUA]', 'JOSHUA'].includes(trimmed)) {
             colorStyle = 'color: #92A8D1; font-weight: bold;';
           }
 
-          // 僅精準替換使用者指定的關鍵字，其餘文字完全不受影響
-          const escapedStr = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const regex = new RegExp(`(${escapedStr})`, 'g');
+          const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`(${escaped})`, 'g');
           
           return title.replace(regex, `<span style="${colorStyle}">$1</span>`);
         };
