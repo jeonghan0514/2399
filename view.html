@@ -7,7 +7,265 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 CDN -->
+  <script src="https://unpkg.co<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💎 2399 漢秀回歸紀錄時間軸</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              50: '#F4F8F4',
+              100: '#E5EFE5',
+              200: '#C5DCC6',
+              300: '#A3C9A8',
+              500: '#6E9975',
+              600: '#5C8363',
+              700: '#47674D',
+              800: '#37503C',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-3 md:p-6 min-h-screen">
+  <div id="app" class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- 頁首區塊 -->
+    <header class="bg-white rounded-2xl overflow-hidden shadow-sm border border-sage-200">
+      <div class="w-full h-36 md:h-48 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
+      <div class="p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t border-sage-100">
+        <div class="flex items-center space-x-3.5">
+          <img src="./logo.jpg" alt="Logo" class="w-12 h-12 rounded-xl shadow-sm border border-sage-200 object-cover">
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold tracking-wide text-sage-800">2399 漢秀回歸紀錄帳本</h1>
+            <p class="text-slate-500 mt-0.5 text-xs md:text-sm">JEONGHAN x JOSHUA 打歌期行程與動態即時追蹤</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <span class="text-xs bg-sage-100 text-sage-700 px-3 py-1.5 rounded-full font-bold border border-sage-200">👀 即時同步時間軸</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 回歸時間軸流水帳 -->
+    <main class="space-y-4">
+      
+      <!-- 控制列 -->
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-sage-200 shadow-sm">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-sage-600"></span>
+          <h2 class="text-base md:text-lg font-bold text-slate-700">JEONGHAN x JOSHUA 回歸動態時間流</h2>
+        </div>
+      </div>
+
+      <!-- 流水帳清單卡片 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
+        
+        <div v-if="groupedEvents.length === 0" class="p-12 text-center text-slate-400 text-sm">
+          目前還沒有動態紀錄。
+        </div>
+
+        <!-- 依日期分組顯示 -->
+        <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
+          
+          <!-- 月份分隔橫條 -->
+          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
+            <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
+              <span>📅</span> {{ group.monthTitle }}
+            </span>
+            <span class="text-[11px] font-semibold text-sage-600 bg-white/70 px-2 py-0.5 rounded-full border border-sage-200">
+              {{ group.monthEventCount }} 個行程動態
+            </span>
+          </div>
+
+          <!-- 當日區塊 -->
+          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-col md:flex-row transition">
+            
+            <!-- 左側日期欄 -->
+            <div class="w-full md:w-28 p-3 md:p-4 border-b md:border-b-0 md:border-r border-slate-100/80 flex md:flex-col items-center justify-center text-center shrink-0">
+              <div class="flex md:flex-col items-baseline md:items-center justify-center gap-1.5 md:gap-0.5">
+                <span class="text-xl md:text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
+                <span class="text-[11px] font-bold text-sage-600 uppercase tracking-wide">{{ group.weekDay }}</span>
+              </div>
+            </div>
+
+            <!-- 右側當天時間列表 -->
+            <div class="flex-1 divide-y divide-slate-100/60 p-2 md:p-3 space-y-1">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 md:space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
+                
+                <!-- 時間置中標籤 -->
+                <div class="w-11 md:w-12 shrink-0 text-left self-center">
+                  <span class="text-xs md:text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                </div>
+
+                <!-- 右側項目 -->
+                <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0">
+                    
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                      <!-- 圓形 Logo 圖片標籤 -->
+                      <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                        <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
+                      </div>
+
+                      <!-- 動態標題 -->
+                      <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
+                         class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
+                         title="點擊開啟外連網址">
+                        <span>{{ item.title }}</span>
+                        <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
+                      </a>
+                      <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate">
+                        {{ item.title }}
+                      </span>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </template>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Realtime Database 模組載入與 Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
+      authDomain: "project-7363487371782368090.firebaseapp.com",
+      databaseURL: "https://project-7363487371782368090-default-rtdb.firebaseio.com",
+      projectId: "project-7363487371782368090",
+      storageBucket: "project-7363487371782368090.firebasestorage.app",
+      messagingSenderId: "237945111149",
+      appId: "1:237945111149:web:fab708f30a372137c17564",
+      measurementId: "G-LXNMT3SKBF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const events = ref([]);
+
+        const platformOptions = [
+          { name: 'Instagram', icon: './IG.jpg' },
+          { name: 'X', icon: './X.jpg' },
+          { name: 'Weverse', icon: './WVS.jpg' },
+          { name: 'Youtube', icon: './YT.png' },
+          { name: 'Seventeen', icon: './logo.jpg' }
+        ];
+
+        onMounted(() => {
+          onValue(dbRef(db, 'events'), (snapshot) => {
+            const data = snapshot.val();
+            events.value = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+          });
+        });
+
+        const getPlatformIcon = (platformName) => {
+          const found = platformOptions.find(p => p.name === platformName);
+          return found ? found.icon : './logo.jpg';
+        };
+
+        const groupedEvents = computed(() => {
+          const dateGroups = {};
+          const sorted = [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          sorted.forEach(item => {
+            if (!item.date) return;
+            const d = new Date(item.date);
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+            const monthTitle = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
+            const dayNum = String(d.getDate()).padStart(2, '0');
+            const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const weekDay = weekDays[d.getDay()];
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
+
+            if (!dateGroups[dateKey]) {
+              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, timeMap: {}, totalCount: 0 };
+            }
+
+            if (!dateGroups[dateKey].timeMap[timeStr]) {
+              dateGroups[dateKey].timeMap[timeStr] = [];
+            }
+
+            dateGroups[dateKey].timeMap[timeStr].push(item);
+            dateGroups[dateKey].totalCount++;
+          });
+
+          let lastMonthKey = '';
+          const result = [];
+
+          Object.values(dateGroups).forEach(group => {
+            const showMonthHeader = group.monthKey !== lastMonthKey;
+            if (showMonthHeader) {
+              lastMonthKey = group.monthKey;
+            }
+
+            const monthEventCount = sorted.filter(e => {
+              const ed = new Date(e.date);
+              return `${ed.getFullYear()}-${String(ed.getMonth()+1).padStart(2, '0')}` === group.monthKey;
+            }).length;
+
+            const timeBlocks = Object.keys(group.timeMap).map(timeStr => ({
+              timeStr,
+              items: group.timeMap[timeStr]
+            }));
+
+            result.push({
+              dateKey: group.dateKey,
+              monthTitle: group.monthTitle,
+              showMonthHeader,
+              monthEventCount,
+              dayNum: group.dayNum,
+              weekDay: group.weekDay,
+              timeBlocks
+            });
+          });
+
+          return result;
+        });
+
+        return {
+          events, groupedEvents,
+          platformOptions, getPlatformIcon
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>m/vue@3/dist/vue.global.js"></script>
   <script>
     tailwind.config = {
       theme: {
