@@ -86,7 +86,7 @@
         </button>
       </div>
 
-      <!-- 新增行程表單 (純文字選單項目) -->
+      <!-- 新增行程表單 -->
       <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-3">
         <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -114,7 +114,7 @@
         </div>
 
         <!-- 依日期分組顯示 -->
-        <div v-for="group in groupedEvents" :key="group.dateKey" class="flex flex-col md:flex-row hover:bg-slate-50/50 transition">
+        <div v-for="group in groupedEvents" :key="group.dateKey" class="flex flex-col md:flex-row hover:bg-slate-50/30 transition">
           
           <!-- 左側日期欄 -->
           <div class="w-full md:w-28 p-4 bg-slate-50/80 md:bg-transparent border-b md:border-b-0 md:border-r border-slate-100 flex md:flex-col items-center md:items-start justify-between md:justify-start shrink-0">
@@ -122,43 +122,52 @@
             <span class="text-xs font-extrabold text-slate-400 uppercase md:mt-1">{{ group.weekDay }}</span>
           </div>
 
-          <!-- 右側當天時間列表 -->
-          <div class="flex-1 divide-y divide-slate-50 p-2 md:p-3 space-y-1">
-            <div v-for="item in group.items" :key="item.id" class="flex items-center justify-between p-2 rounded-lg hover:bg-sage-50/60 transition group">
+          <!-- 右側當天時間列表（依同小時時間區塊分組） -->
+          <div class="flex-1 divide-y divide-slate-100/80 p-2 md:p-3 space-y-1">
+            <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 md:space-x-4 p-1.5 rounded-lg hover:bg-sage-50/40 transition">
               
-              <div class="flex items-center space-x-3 md:space-x-4 overflow-hidden">
-                <!-- 時間 (以小時為單位，如 13:00) -->
-                <span class="text-xs md:text-sm font-mono font-bold text-slate-400 shrink-0 w-11 md:w-12">{{ item.timeStr }}</span>
-                
-                <!-- 圓形圖片 Icon 標籤 -->
-                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
-                  <img v-if="item.platform === 'Instagram'" src="./IG.jpg" alt="Instagram" class="w-full h-full object-cover">
-                  <img v-else-if="item.platform === 'X'" src="./X.jpg" alt="X" class="w-full h-full object-cover">
-                  <img v-else-if="item.platform === 'Weverse'" src="./WVS.jpg" alt="Weverse" class="w-full h-full object-cover">
-                  <img v-else-if="item.platform === 'Youtube'" src="./YT.png" alt="Youtube" class="w-full h-full object-cover">
-                  <img v-else-if="item.platform === 'Seventeen'" src="./logo.jpg" alt="Seventeen" class="w-full h-full object-cover">
-                  <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs bg-sage-600 text-white">
-                    💎
-                  </div>
-                </div>
-
-                <!-- 動態標題 -->
-                <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                   class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                   :class="{ 'line-through text-slate-400': item.completed }"
-                   title="點擊開啟外連網址">
-                  <span>{{ item.title }}</span>
-                  <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
-                </a>
-                <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
-                  {{ item.title }}
-                </span>
+              <!-- 同時間點集中在左側垂直置中 -->
+              <div class="w-11 md:w-12 shrink-0 text-left self-center">
+                <span class="text-xs md:text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
               </div>
 
-              <!-- 操作按鈕 -->
-              <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
-                <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
-                <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
+              <!-- 右側該時間點的所有動態列表 -->
+              <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
+                <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0 group">
+                  
+                  <div class="flex items-center space-x-3 overflow-hidden">
+                    <!-- 圓形圖片 Icon 標籤 -->
+                    <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                      <img v-if="item.platform === 'Instagram'" src="./IG.jpg" alt="Instagram" class="w-full h-full object-cover">
+                      <img v-else-if="item.platform === 'X'" src="./X.jpg" alt="X" class="w-full h-full object-cover">
+                      <img v-else-if="item.platform === 'Weverse'" src="./WVS.jpg" alt="Weverse" class="w-full h-full object-cover">
+                      <img v-else-if="item.platform === 'Youtube'" src="./YT.png" alt="Youtube" class="w-full h-full object-cover">
+                      <img v-else-if="item.platform === 'Seventeen'" src="./logo.jpg" alt="Seventeen" class="w-full h-full object-cover">
+                      <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs bg-sage-600 text-white">
+                        💎
+                      </div>
+                    </div>
+
+                    <!-- 動態標題 -->
+                    <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
+                       class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
+                       :class="{ 'line-through text-slate-400': item.completed }"
+                       title="點擊開啟外連網址">
+                      <span>{{ item.title }}</span>
+                      <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
+                    </a>
+                    <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
+                      {{ item.title }}
+                    </span>
+                  </div>
+
+                  <!-- 操作按鈕 -->
+                  <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
+                    <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
+                    <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
+                  </div>
+
+                </div>
               </div>
 
             </div>
@@ -323,8 +332,9 @@
           });
         });
 
+        // 兩層分 central 邏輯：先按 Date 分組，再按 Time 小時分組
         const groupedEvents = computed(() => {
-          const groups = {};
+          const dateGroups = {};
           const sorted = [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date));
 
           sorted.forEach(item => {
@@ -336,13 +346,29 @@
             const weekDay = weekDays[d.getDay()];
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
-            if (!groups[dateKey]) {
-              groups[dateKey] = { dateKey, dayNum, weekDay, items: [] };
+            if (!dateGroups[dateKey]) {
+              dateGroups[dateKey] = { dateKey, dayNum, weekDay, timeMap: {} };
             }
-            groups[dateKey].items.push({ ...item, timeStr });
+
+            if (!dateGroups[dateKey].timeMap[timeStr]) {
+              dateGroups[dateKey].timeMap[timeStr] = [];
+            }
+
+            dateGroups[dateKey].timeMap[timeStr].push(item);
           });
 
-          return Object.values(groups);
+          return Object.values(dateGroups).map(group => {
+            const timeBlocks = Object.keys(group.timeMap).map(timeStr => ({
+              timeStr,
+              items: group.timeMap[timeStr]
+            }));
+            return {
+              dateKey: group.dateKey,
+              dayNum: group.dayNum,
+              weekDay: group.weekDay,
+              timeBlocks
+            };
+          });
         });
 
         const calendarDays = computed(() => {
