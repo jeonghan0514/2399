@@ -5,7 +5,7 @@
   <!-- 設定固定寬度為 1200px，讓手機開啟時整體自動等比例縮放適合螢幕 -->
   <meta name="viewport" content="width=1200, initial-scale=0.35, maximum-scale=2.0, user-scalable=yes">
   
-  <!-- 網頁與社群分享標題 (LINE, FB, Twitter 預覽顯示) -->
+  <!-- 網頁與社群分享標題 -->
   <title>정한X조슈아｜JxJ COMEBACK SCHEDULE</title>
   <meta property="og:title" content="정한X조슈아｜JxJ COMEBACK SCHEDULE">
   <meta property="og:description" content="좋아하는 사람은 하염없이 기다리는 거야 💎">
@@ -89,7 +89,7 @@
           <!-- 當日區塊 (底色保持原本白/微綠隔天交替) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
-            <!-- 左側日期欄 (放假日僅文字變柔和紅，底色不變) -->
+            <!-- 左側日期欄 -->
             <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
@@ -149,15 +149,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // ✨ 已替換為你的新 JxJ 專屬專案 Config ✨
     const firebaseConfig = {
-      apiKey: "AIzaSyCcm-2NztU3Abk6MvnMwL-xr0aXVuyII3c",
-      authDomain: "project-7363487371782368090.firebaseapp.com",
-      databaseURL: "https://project-7363487371782368090-default-rtdb.firebaseio.com",
-      projectId: "project-7363487371782368090",
-      storageBucket: "project-7363487371782368090.firebasestorage.app",
-      messagingSenderId: "237945111149",
-      appId: "1:237945111149:web:fab708f30a372137c17564",
-      measurementId: "G-LXNMT3SKBF"
+      apiKey: "AIzaSyBSYT-iNksOHfbdG2BRlwJD8YRNmJ7tFys",
+      authDomain: "jxjschedule.firebaseapp.com",
+      databaseURL: "https://jxjschedule-default-rtdb.firebaseio.com",
+      projectId: "jxjschedule",
+      storageBucket: "jxjschedule.firebasestorage.app",
+      messagingSenderId: "407766532126",
+      appId: "1:407766532126:web:45742371eb7c1f00896e0f",
+      measurementId: "G-XCCCGNBHZ3"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -169,7 +170,7 @@
       setup() {
         const events = ref([]);
 
-        // 台灣國定假日與連假對照表
+        // 台灣國定假日對照表
         const holidaysMap = {
           '2026-01-01': true,
           '2026-02-15': true, '2026-02-16': true, '2026-02-17': true, '2026-02-18': true, '2026-02-19': true, '2026-02-20': true,
