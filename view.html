@@ -30,6 +30,11 @@
               600: '#5C8363',
               700: '#47674D',
               800: '#37503C',
+            },
+            // 柔和紅 (用於假日日期與星期文字)
+            softred: {
+              500: '#E06D53',
+              600: '#D96B6B',
             }
           }
         }
@@ -81,14 +86,14 @@
             </span>
           </div>
 
-          <!-- 當日區塊 -->
+          <!-- 當日區塊 (底色保持原本白/微綠隔天交替) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
-            <!-- 左側日期欄 -->
+            <!-- 左側日期欄 (放假日僅文字變柔和紅，底色不變) -->
             <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <span class="text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
-                <span class="text-[11px] font-bold text-sage-600 uppercase tracking-wide">{{ group.weekDay }}</span>
+                <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
+                <span class="text-[11px] font-bold uppercase tracking-wide" :class="group.isHoliday ? 'text-softred-500' : 'text-sage-600'">{{ group.weekDay }}</span>
               </div>
             </div>
 
@@ -164,6 +169,21 @@
       setup() {
         const events = ref([]);
 
+        // 台灣國定假日與連假對照表
+        const holidaysMap = {
+          '2026-01-01': true,
+          '2026-02-15': true, '2026-02-16': true, '2026-02-17': true, '2026-02-18': true, '2026-02-19': true, '2026-02-20': true,
+          '2026-02-27': true, '2026-02-28': true,
+          '2026-04-03': true, '2026-04-04': true, '2026-04-05': true, '2026-04-06': true,
+          '2026-05-01': true,
+          '2026-06-19': true,
+          '2026-09-25': true,
+          '2026-09-28': true,
+          '2026-10-09': true, '2026-10-10': true,
+          '2026-10-25': true, '2026-10-26': true,
+          '2026-12-25': true
+        };
+
         const platformOptions = [
           { name: 'Instagram', icon: './IG.jpg' },
           { name: 'X', icon: './X.jpg' },
@@ -196,11 +216,14 @@
             const monthTitle = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
             const dayNum = String(d.getDate()).padStart(2, '0');
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-            const weekDay = weekDays[d.getDay()];
+            const dayOfWeek = d.getDay();
+            const weekDay = weekDays[dayOfWeek];
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
+            const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
+
             if (!dateGroups[dateKey]) {
-              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, timeMap: {}, totalCount: 0 };
+              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, isHoliday, timeMap: {}, totalCount: 0 };
             }
 
             if (!dateGroups[dateKey].timeMap[timeStr]) {
@@ -237,6 +260,7 @@
               monthEventCount,
               dayNum: group.dayNum,
               weekDay: group.weekDay,
+              isHoliday: group.isHoliday,
               timeBlocks
             });
           });
