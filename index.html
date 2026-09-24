@@ -48,19 +48,13 @@
           </div>
         </div>
 
-        <!-- 分頁切換 -->
+        <!-- 分頁切換 (已移除月曆) -->
         <nav class="flex bg-sage-50 p-1 rounded-xl w-full md:w-auto border border-sage-200">
           <button 
             @click="currentTab = 'timeline'" 
             :class="currentTab === 'timeline' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
             class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
             📋 回歸流水帳 (Timeline)
-          </button>
-          <button 
-            @click="currentTab = 'calendar'" 
-            :class="currentTab === 'calendar' ? 'bg-sage-600 text-white font-bold shadow-sm' : 'text-sage-700 hover:bg-sage-100'"
-            class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm transition">
-            📅 月曆視圖
           </button>
           <button 
             @click="currentTab = 'merch'" 
@@ -180,7 +174,7 @@
                       </span>
                     </div>
 
-                    <!-- 刪除按鈕 (已移除打勾框框) -->
+                    <!-- 刪除按鈕 -->
                     <div class="flex items-center opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
                       <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-2 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
                     </div>
@@ -199,43 +193,7 @@
 
     </main>
 
-    <!-- ==================== 分頁 2: 月曆視圖 ==================== -->
-    <main v-if="currentTab === 'calendar'" class="space-y-6">
-      <section class="bg-white p-5 rounded-2xl border border-sage-200 shadow-sm space-y-4">
-        <div class="flex justify-between items-center pb-2 border-b border-sage-100">
-          <div class="flex items-center space-x-3">
-            <h2 class="text-xl font-bold text-sage-800">{{ calendarYear }} 年 {{ calendarMonth + 1 }} 月</h2>
-            <div class="flex space-x-1">
-              <button @click="prevMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-sm font-bold">‹</button>
-              <button @click="todayMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-xs font-medium">今天</button>
-              <button @click="nextMonth" class="px-2.5 py-1 bg-sage-50 text-sage-700 rounded-lg text-sm font-bold">›</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-sage-600 pb-1">
-          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-        </div>
-
-        <div class="grid grid-cols-7 gap-1.5 md:gap-2">
-          <div v-for="(day, idx) in calendarDays" :key="idx" class="min-h-[85px] md:min-h-[110px] p-1.5 border rounded-xl flex flex-col justify-between"
-            :class="{ 'bg-slate-50/50 opacity-40': !day.isCurrentMonth, 'bg-white': day.isCurrentMonth, 'border-sage-500 bg-sage-100/40': day.isToday }">
-            <div class="text-right">
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" :class="day.isToday ? 'bg-sage-600 text-white' : 'text-slate-600'">{{ day.dayNumber }}</span>
-            </div>
-            <div class="space-y-1 mt-1 overflow-y-auto max-h-[60px] no-scrollbar">
-              <a v-for="event in day.events" :key="event.id" 
-                 :href="event.link || '#'" :target="event.link ? '_blank' : '_self'"
-                 class="block text-[10px] md:text-xs p-1 rounded font-medium truncate bg-sage-100 text-sage-800 hover:bg-sage-200">
-                {{ event.title }} {{ event.link ? '🔗' : '' }}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- ==================== 分頁 3: 周邊購物記帳 ==================== -->
+    <!-- ==================== 分頁 2: 周邊購物記帳 ==================== -->
     <main v-if="currentTab === 'merch'" class="space-y-6">
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm">
@@ -344,10 +302,6 @@
         const newEvent = ref({ title: '', date: '', platform: 'Instagram', link: '' });
         const newMerch = ref({ name: '', price: null, status: '已付款', note: '' });
 
-        const today = new Date();
-        const calendarYear = ref(today.getFullYear());
-        const calendarMonth = ref(today.getMonth());
-
         onMounted(() => {
           onValue(dbRef(db, 'events'), (snapshot) => {
             const data = snapshot.val();
@@ -424,41 +378,6 @@
           return result;
         });
 
-        const calendarDays = computed(() => {
-          const year = calendarYear.value;
-          const month = calendarMonth.value;
-          const firstDay = new Date(year, month, 1).getDay();
-          const daysInMonth = new Date(year, month + 1, 0).getDate();
-          const prevMonthDays = new Date(year, month, 0).getDate();
-          const days = [];
-
-          for (let i = firstDay - 1; i >= 0; i--) {
-            days.push({ dayNumber: prevMonthDays - i, isCurrentMonth: false, isToday: false, events: [] });
-          }
-
-          const now = new Date();
-          for (let d = 1; d <= daysInMonth; d++) {
-            const isToday = (year === now.getFullYear() && month === now.getMonth() && d === now.getDate());
-            const dayEvents = events.value.filter(e => {
-              if (!e.date) return false;
-              const ed = new Date(e.date);
-              return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d;
-            });
-            days.push({ dayNumber: d, isCurrentMonth: true, isToday, events: dayEvents });
-          }
-
-          const totalCells = days.length > 35 ? 42 : 35;
-          const remaining = totalCells - days.length;
-          for (let i = 1; i <= remaining; i++) {
-            days.push({ dayNumber: i, isCurrentMonth: false, isToday: false, events: [] });
-          }
-          return days;
-        });
-
-        const prevMonth = () => { calendarMonth.value === 0 ? (calendarMonth.value = 11, calendarYear.value--) : calendarMonth.value--; };
-        const nextMonth = () => { calendarMonth.value === 11 ? (calendarMonth.value = 0, calendarYear.value++) : calendarMonth.value++; };
-        const todayMonth = () => { calendarYear.value = new Date().getFullYear(); calendarMonth.value = new Date().getMonth(); };
-
         const totalPrice = computed(() => merchList.value.reduce((sum, item) => sum + (item.price || 0), 0));
         const pendingItemsCount = computed(() => merchList.value.filter(item => item.status === '待付款').length);
 
@@ -483,7 +402,6 @@
         return {
           currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
           platformOptions, getPlatformIcon,
-          calendarYear, calendarMonth, calendarDays, prevMonth, nextMonth, todayMonth,
           totalPrice, pendingItemsCount,
           addEvent, deleteEvent, addMerch, deleteMerch
         };
