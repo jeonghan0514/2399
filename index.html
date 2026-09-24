@@ -169,14 +169,14 @@
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
-                      <!-- 動態標題 (僅改變人名文字顏色) -->
+                      <!-- 動態標題 (應援色名字 + 灰色內文) -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
+                         class="text-sm font-medium hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                          title="點擊開啟外連網址">
                         <span v-html="formatTitle(item.title)"></span>
                         <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold shrink-0">🔗 開啟</span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate" v-html="formatTitle(item.title)">
+                      <span v-else class="text-sm font-medium truncate" v-html="formatTitle(item.title)">
                       </span>
                     </div>
 
@@ -425,19 +425,31 @@
           });
         });
 
-        // 僅將 [人名] 轉為純文字顏色 (不加底色框)
+        // 格式化標題：[人名]用克拉官方應援色，其餘訊息文字用柔和灰色
         const formatTitle = (title) => {
           if (!title) return '';
-          return title.replace(/\[(.*?)\]/g, (match, name) => {
+          
+          let formatted = title.replace(/\[(.*?)\]/g, (match, name) => {
             const trimmedName = name.trim();
             if (['정한', 'JEONGHAN', 'JH'].includes(trimmedName)) {
-              return `<span class="text-[#E06D88] font-bold">[${trimmedName}]</span>`;
+              return `<span class="text-[#E58B88] font-bold">[${trimmedName}]</span>`;
             } else if (['조슈아', 'JOSHUA', 'JS', 'SHUA'].includes(trimmedName)) {
-              return `<span class="text-[#4A7BB0] font-bold">[${trimmedName}]</span>`;
+              return `<span class="text-[#5B84B1] font-bold">[${trimmedName}]</span>`;
             } else {
               return `<span class="text-slate-500 font-bold">[${trimmedName}]</span>`;
             }
           });
+
+          // 如果包含 [人名]，把後面沒被包裹的文字改為灰色
+          if (/\[.*?\]/.test(title)) {
+            const parts = formatted.split(/(<span.*?>.*?<\/span>)/g);
+            return parts.map(part => {
+              if (part.startsWith('<span')) return part;
+              return part ? `<span class="text-slate-500">${part}</span>` : '';
+            }).join('');
+          }
+
+          return `<span class="text-slate-700">${title}</span>`;
         };
 
         const getPlatformIcon = (platformName) => {
