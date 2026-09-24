@@ -110,7 +110,7 @@
           </div>
 
           <div class="grid grid-cols-3 gap-3">
-            <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: [정한] 캐럿들 맛있는거...)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+            <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: [정한]캐럿들 맛있는거...)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
             <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
             <input v-model="newEvent.link" type="url" placeholder="貼上網址 (例如: https://...)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
           </div>
@@ -169,14 +169,14 @@
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
-                      <!-- 動態標題 (克拉色高亮人名) -->
+                      <!-- 動態標題 (僅改變人名文字顏色) -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
                          class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                          title="點擊開啟外連網址">
                         <span v-html="formatTitle(item.title)"></span>
                         <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold shrink-0">🔗 開啟</span>
                       </a>
-                      <span v-else class="text-sm font-medium text-slate-700 truncate flex items-center gap-1.5" v-html="formatTitle(item.title)">
+                      <span v-else class="text-sm font-medium text-slate-700 truncate" v-html="formatTitle(item.title)">
                       </span>
                     </div>
 
@@ -425,17 +425,17 @@
           });
         });
 
-        // 格式化標題：淨漢=玫瑰石英粉 (Rose Quartz)、知秀=靜謐藍 (Serenity)、其他=淺灰
+        // 僅將 [人名] 轉為純文字顏色 (不加底色框)
         const formatTitle = (title) => {
           if (!title) return '';
           return title.replace(/\[(.*?)\]/g, (match, name) => {
             const trimmedName = name.trim();
             if (['정한', 'JEONGHAN', 'JH'].includes(trimmedName)) {
-              return `<span class="bg-[#F7CAC9]/80 text-[#9C5D6C] px-2 py-0.5 rounded-md text-xs font-bold border border-[#F7CAC9] shrink-0 inline-block mr-1 shadow-2xs">${trimmedName}</span>`;
+              return `<span class="text-[#E06D88] font-bold">[${trimmedName}]</span>`;
             } else if (['조슈아', 'JOSHUA', 'JS', 'SHUA'].includes(trimmedName)) {
-              return `<span class="bg-[#92A8D1]/80 text-[#2C4A70] px-2 py-0.5 rounded-md text-xs font-bold border border-[#92A8D1] shrink-0 inline-block mr-1 shadow-2xs">${trimmedName}</span>`;
+              return `<span class="text-[#4A7BB0] font-bold">[${trimmedName}]</span>`;
             } else {
-              return `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-bold border border-slate-200 shrink-0 inline-block mr-1">${trimmedName}</span>`;
+              return `<span class="text-slate-500 font-bold">[${trimmedName}]</span>`;
             }
           });
         };
