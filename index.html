@@ -141,7 +141,7 @@
           <!-- 當日區塊 (底色保持原本白/微綠隔天交替) -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
-            <!-- 左側日期欄 -->
+            <!-- 左側日期欄 (放假日僅文字變柔和紅，底色不變) -->
             <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
@@ -149,8 +149,8 @@
               </div>
             </div>
 
-            <!-- 右側當天時間列表 -->
-            <div class="flex-1 divide-y divide-slate-100/60 p-3 space-y-1">
+            <!-- 右側當天時間列表 (不同時段之間加上柔和的鼠尾草綠虛線) -->
+            <div class="flex-1 divide-y divide-dashed divide-sage-200/90 p-3 space-y-1">
               <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
                 
                 <!-- 時間置中標籤 -->
@@ -273,7 +273,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref as dbRef, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // ✨ 已替換為你的新 JxJ 專屬專案 Config ✨
     const firebaseConfig = {
       apiKey: "AIzaSyBSYT-iNksOHfbdG2BRlwJD8YRNmJ7tFys",
       authDomain: "jxjschedule.firebaseapp.com",
@@ -354,7 +353,7 @@
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const dayOfWeek = d.getDay();
             const weekDay = weekDays[dayOfWeek];
-            const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
             const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
 
