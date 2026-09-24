@@ -86,7 +86,7 @@
         </button>
       </div>
 
-      <!-- 新增行程表單 (帶有 Logo 圖示選擇器) -->
+      <!-- 新增行程表單 -->
       <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-4">
         <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
         
@@ -126,59 +126,76 @@
         </div>
 
         <!-- 依日期分組顯示 -->
-        <div v-for="group in groupedEvents" :key="group.dateKey" class="flex flex-col md:flex-row hover:bg-slate-50/30 transition">
+        <template v-for="(group, gIdx) in groupedEvents" :key="group.dateKey">
           
-          <!-- 左側日期欄 -->
-          <div class="w-full md:w-28 p-4 bg-slate-50/80 md:bg-transparent border-b md:border-b-0 md:border-r border-slate-100 flex md:flex-col items-center md:items-start justify-between md:justify-start shrink-0">
-            <span class="text-2xl md:text-3xl font-black text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
-            <span class="text-xs font-extrabold text-slate-400 uppercase md:mt-1">{{ group.weekDay }}</span>
+          <!-- 月份分隔橫條（當月份變更時顯示） -->
+          <div v-if="group.showMonthHeader" class="bg-sage-100/70 border-y border-sage-200/80 px-5 py-2.5 flex items-center justify-between">
+            <span class="text-xs font-bold text-sage-800 tracking-wider flex items-center gap-1.5">
+              <span>📅</span> {{ group.monthTitle }}
+            </span>
+            <span class="text-[11px] font-semibold text-sage-600 bg-white/70 px-2 py-0.5 rounded-full border border-sage-200">
+              {{ group.monthEventCount }} 個行程動態
+            </span>
           </div>
 
-          <!-- 右側當天時間列表（同小時集中置中） -->
-          <div class="flex-1 divide-y divide-slate-100/80 p-2 md:p-3 space-y-1">
-            <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 md:space-x-4 p-1.5 rounded-lg hover:bg-sage-50/40 transition">
-              
-              <!-- 時間置中標籤 -->
-              <div class="w-11 md:w-12 shrink-0 text-left self-center">
-                <span class="text-xs md:text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+          <!-- 當日區塊 (套用微綠與純白交替網底) -->
+          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-col md:flex-row transition">
+            
+            <!-- 左側日期欄 (精緻置中、大小適中) -->
+            <div class="w-full md:w-28 p-3 md:p-4 border-b md:border-b-0 md:border-r border-slate-100/80 flex md:flex-col items-center justify-center text-center shrink-0">
+              <div class="flex md:flex-col items-baseline md:items-center justify-center gap-1.5 md:gap-0.5">
+                <span class="text-xl md:text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
+                <span class="text-[11px] font-bold text-sage-600 uppercase tracking-wide">{{ group.weekDay }}</span>
               </div>
+            </div>
 
-              <!-- 右側項目 -->
-              <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
-                <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0 group">
-                  
-                  <div class="flex items-center space-x-3 overflow-hidden">
-                    <!-- 圓形 Logo 圖片標籤 -->
-                    <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
-                      <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
+            <!-- 右側當天時間列表 -->
+            <div class="flex-1 divide-y divide-slate-100/60 p-2 md:p-3 space-y-1">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 md:space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
+                
+                <!-- 時間置中標籤 -->
+                <div class="w-11 md:w-12 shrink-0 text-left self-center">
+                  <span class="text-xs md:text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                </div>
+
+                <!-- 右側項目 -->
+                <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0 group">
+                    
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                      <!-- 圓形 Logo 圖片標籤 -->
+                      <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                        <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
+                      </div>
+
+                      <!-- 動態標題 -->
+                      <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
+                         class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
+                         :class="{ 'line-through text-slate-400': item.completed }"
+                         title="點擊開啟外連網址">
+                        <span>{{ item.title }}</span>
+                        <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
+                      </a>
+                      <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
+                        {{ item.title }}
+                      </span>
                     </div>
 
-                    <!-- 動態標題 -->
-                    <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                       class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                       :class="{ 'line-through text-slate-400': item.completed }"
-                       title="點擊開啟外連網址">
-                      <span>{{ item.title }}</span>
-                      <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
-                    </a>
-                    <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate" :class="{ 'line-through text-slate-400': item.completed }">
-                      {{ item.title }}
-                    </span>
-                  </div>
+                    <!-- 操作按鈕 -->
+                    <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
+                      <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
+                      <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
+                    </div>
 
-                  <!-- 操作按鈕 -->
-                  <div class="flex items-center space-x-2 opacity-80 group-hover:opacity-100 shrink-0 ml-2">
-                    <input type="checkbox" :checked="item.completed" @change="toggleEventStatus(item)" class="w-4 h-4 text-sage-600 rounded border-slate-300">
-                    <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-1">✕</button>
                   </div>
-
                 </div>
-              </div>
 
+              </div>
             </div>
+
           </div>
 
-        </div>
+        </template>
 
       </div>
 
@@ -358,13 +375,15 @@
             if (!item.date) return;
             const d = new Date(item.date);
             const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+            const monthTitle = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
             const dayNum = String(d.getDate()).padStart(2, '0');
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const weekDay = weekDays[d.getDay()];
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
             if (!dateGroups[dateKey]) {
-              dateGroups[dateKey] = { dateKey, dayNum, weekDay, timeMap: {} };
+              dateGroups[dateKey] = { dateKey, monthKey, monthTitle, dayNum, weekDay, timeMap: {}, totalCount: 0 };
             }
 
             if (!dateGroups[dateKey].timeMap[timeStr]) {
@@ -372,20 +391,41 @@
             }
 
             dateGroups[dateKey].timeMap[timeStr].push(item);
+            dateGroups[dateKey].totalCount++;
           });
 
-          return Object.values(dateGroups).map(group => {
+          let lastMonthKey = '';
+          const result = [];
+
+          Object.values(dateGroups).forEach(group => {
+            const showMonthHeader = group.monthKey !== lastMonthKey;
+            if (showMonthHeader) {
+              lastMonthKey = group.monthKey;
+            }
+
+            // 計算該月總項目數
+            const monthEventCount = sorted.filter(e => {
+              const ed = new Date(e.date);
+              return `${ed.getFullYear()}-${String(ed.getMonth()+1).padStart(2, '0')}` === group.monthKey;
+            }).length;
+
             const timeBlocks = Object.keys(group.timeMap).map(timeStr => ({
               timeStr,
               items: group.timeMap[timeStr]
             }));
-            return {
+
+            result.push({
               dateKey: group.dateKey,
+              monthTitle: group.monthTitle,
+              showMonthHeader,
+              monthEventCount,
               dayNum: group.dayNum,
               weekDay: group.weekDay,
               timeBlocks
-            };
+            });
           });
+
+          return result;
         });
 
         const calendarDays = computed(() => {
