@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 設定固定寬度為 1200px，讓手機開啟時整體自動等比例縮放以適合手機螢幕 -->
+  <meta name="viewport" content="width=1200, initial-scale=0.35, maximum-scale=2.0, user-scalable=yes">
   <title>💎 2399 漢秀回歸紀錄時間軸</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -33,18 +34,18 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 p-3 md:p-6 min-h-screen">
-  <div id="app" class="max-w-6xl mx-auto space-y-6">
+<body class="bg-slate-100 text-slate-800 p-6 min-h-screen">
+  <div id="app" class="w-[1150px] mx-auto space-y-6">
     
     <!-- 頁首區塊 -->
     <header class="bg-white rounded-2xl overflow-hidden shadow-sm border border-sage-200">
-      <div class="w-full h-36 md:h-48 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
-      <div class="p-4 md:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t border-sage-100">
+      <div class="w-full h-48 bg-cover bg-center" style="background-image: url('./banner.jpg');"></div>
+      <div class="p-5 flex justify-between items-center gap-4 border-t border-sage-100">
         <div class="flex items-center space-x-3.5">
           <img src="./logo.jpg" alt="Logo" class="w-12 h-12 rounded-xl shadow-sm border border-sage-200 object-cover">
           <div>
-            <h1 class="text-xl md:text-2xl font-bold tracking-wide text-sage-800">2399 漢秀回歸紀錄帳本</h1>
-            <p class="text-slate-500 mt-0.5 text-xs md:text-sm">JEONGHAN x JOSHUA 打歌期行程與動態即時追蹤</p>
+            <h1 class="text-2xl font-bold tracking-wide text-sage-800">2399 漢秀回歸紀錄帳本</h1>
+            <p class="text-slate-500 mt-0.5 text-sm">JEONGHAN x JOSHUA 打歌期行程與動態即時追蹤</p>
           </div>
         </div>
 
@@ -61,7 +62,7 @@
       <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-sage-200 shadow-sm">
         <div class="flex items-center space-x-2">
           <span class="w-2.5 h-2.5 rounded-full bg-sage-600"></span>
-          <h2 class="text-base md:text-lg font-bold text-slate-700">JEONGHAN x JOSHUA 回歸動態時間流</h2>
+          <h2 class="text-lg font-bold text-slate-700">JEONGHAN x JOSHUA 回歸動態時間流</h2>
         </div>
       </div>
 
@@ -86,23 +87,23 @@
           </div>
 
           <!-- 當日區塊 -->
-          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-col md:flex-row transition">
+          <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
             <!-- 左側日期欄 -->
-            <div class="w-full md:w-28 p-3 md:p-4 border-b md:border-b-0 md:border-r border-slate-100/80 flex md:flex-col items-center justify-center text-center shrink-0">
-              <div class="flex md:flex-col items-baseline md:items-center justify-center gap-1.5 md:gap-0.5">
-                <span class="text-xl md:text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
+            <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
+              <div class="flex flex-col items-center justify-center gap-0.5">
+                <span class="text-2xl font-bold text-slate-700 tracking-tight leading-none">{{ group.dayNum }}</span>
                 <span class="text-[11px] font-bold text-sage-600 uppercase tracking-wide">{{ group.weekDay }}</span>
               </div>
             </div>
 
             <!-- 右側當天時間列表 -->
-            <div class="flex-1 divide-y divide-slate-100/60 p-2 md:p-3 space-y-1">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-3 md:space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
+            <div class="flex-1 divide-y divide-slate-100/60 p-3 space-y-1">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
                 
                 <!-- 時間置中標籤 -->
-                <div class="w-11 md:w-12 shrink-0 text-left self-center">
-                  <span class="text-xs md:text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
+                <div class="w-12 shrink-0 text-left self-center">
+                  <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
                 <!-- 右側項目 -->
@@ -111,18 +112,18 @@
                     
                     <div class="flex items-center space-x-3 overflow-hidden">
                       <!-- 圓形 Logo 圖片標籤 -->
-                      <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
+                      <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
                       <!-- 動態標題 -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-xs md:text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
+                         class="text-sm font-medium text-slate-800 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
                          title="點擊開啟外連網址">
                         <span>{{ item.title }}</span>
                         <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold">🔗 開啟</span>
                       </a>
-                      <span v-else class="text-xs md:text-sm font-medium text-slate-700 truncate">
+                      <span v-else class="text-sm font-medium text-slate-700 truncate">
                         {{ item.title }}
                       </span>
                     </div>
