@@ -19,6 +19,7 @@
               100: '#E5EFE5',
               200: '#C5DCC6',
               300: '#A3C9A8',
+              400: '#81B287',
               500: '#6E9975',
               600: '#5C8363',
               700: '#47674D',
@@ -149,17 +150,17 @@
               </div>
             </div>
 
-            <!-- 右側當天時間列表 (不同「小時」之間用實線分隔) -->
-            <div class="flex-1 divide-y divide-slate-100 p-3 space-y-2">
+            <!-- 右側當天時間列表 (小時之間用清晰實線 divide-slate-200) -->
+            <div class="flex-1 divide-y divide-slate-200 p-3 space-y-2">
               <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
                 
-                <!-- 小時置中標籤 (垂直置中對齊) -->
+                <!-- 小時置中標籤 -->
                 <div class="w-12 shrink-0 text-left self-center">
                   <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
-                <!-- 同一個小時內的多個行程項目 (行程間用鼠尾草綠虛線分隔) -->
-                <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-200">
+                <!-- 同一個小時內的多個行程項目 (行程間加深為 sage-400 鼠尾草綠虛線) -->
+                <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-400/80">
                   <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0 group">
                     
                     <div class="flex items-center space-x-3 overflow-hidden">
