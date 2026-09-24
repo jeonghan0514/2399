@@ -149,18 +149,18 @@
               </div>
             </div>
 
-            <!-- 右側當天時間列表 (不同時段之間加上柔和的鼠尾草綠虛線) -->
-            <div class="flex-1 divide-y divide-dashed divide-sage-200/90 p-3 space-y-1">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/40 transition">
+            <!-- 右側當天時間列表 (不同「小時」之間用鼠尾草綠虛線分隔) -->
+            <div class="flex-1 divide-y divide-dashed divide-sage-200 p-3 space-y-2">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-start space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
                 
-                <!-- 時間置中標籤 -->
-                <div class="w-12 shrink-0 text-left self-center">
+                <!-- 小時置中標籤 (如 18:00) -->
+                <div class="w-12 shrink-0 text-left pt-0.5">
                   <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
-                <!-- 右側項目 -->
-                <div class="flex-1 space-y-1.5 divide-y divide-slate-50">
-                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-1 first:pt-0 group">
+                <!-- 同一個小時內的行程項目 (多個行程間用實線分隔) -->
+                <div class="flex-1 space-y-2 divide-y divide-slate-100">
+                  <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0 group">
                     
                     <div class="flex items-center space-x-3 overflow-hidden">
                       <!-- 圓形 Logo 圖片標籤 -->
@@ -353,7 +353,9 @@
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const dayOfWeek = d.getDay();
             const weekDay = weekDays[dayOfWeek];
-            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            
+            // 恢復為「整點/小時」單位 (如 18:00)
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
             const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
 
