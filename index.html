@@ -159,7 +159,7 @@
                   <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
-                <!-- 同一個小時內的多個行程項目 (行程間加深為 sage-400 鼠尾草綠虛線) -->
+                <!-- 同一個小時內的多個行程項目 -->
                 <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-400/80">
                   <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0 group">
                     
@@ -181,8 +181,9 @@
                       </span>
                     </div>
 
-                    <!-- 刪除按鈕 -->
-                    <div class="flex items-center opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
+                    <!-- 操作按鈕區 (修改 + 刪除) -->
+                    <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 shrink-0 ml-2 transition-opacity">
+                      <button @click="openEditEventModal(item)" class="text-sage-700 hover:text-sage-900 text-xs px-2 py-0.5 rounded hover:bg-sage-100 font-medium">✏️ 修改</button>
                       <button @click="deleteEvent(item.id)" class="text-slate-300 hover:text-red-500 text-xs px-2 py-0.5 rounded hover:bg-red-50">✕ 刪除</button>
                     </div>
 
@@ -257,7 +258,8 @@
                 </td>
                 <td class="py-3 font-semibold text-sage-700">NT$ {{ item.price }}</td>
                 <td class="py-3 text-slate-400 text-xs">{{ item.note || '-' }}</td>
-                <td class="py-3 text-right">
+                <td class="py-3 text-right space-x-2">
+                  <button @click="openEditMerchModal(item)" class="text-sage-600 text-xs hover:text-sage-800 font-medium">✏️ 修改</button>
                   <button @click="deleteMerch(item.id)" class="text-red-400 text-xs hover:text-red-600">刪除</button>
                 </td>
               </tr>
@@ -267,12 +269,98 @@
       </section>
     </main>
 
+    <!-- ==================== 彈窗 1: 修改行程/動態 Modal ==================== -->
+    <div v-if="editingEvent" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl shadow-xl border border-sage-200 w-full max-w-lg p-6 space-y-4">
+        <div class="flex justify-between items-center border-b border-sage-100 pb-3">
+          <h3 class="text-lg font-bold text-sage-800">✏️ 修改行程 / 動態</h3>
+          <button @click="editingEvent = null" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+
+        <form @submit.prevent="saveEditEvent" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">發布平台 / 標籤 Icon：</label>
+            <div class="flex flex-wrap gap-2">
+              <button 
+                type="button"
+                v-for="p in platformOptions" 
+                :key="p.name"
+                @click="editingEvent.platform = p.name"
+                :class="editingEvent.platform === p.name ? 'ring-2 ring-sage-600 bg-sage-50 border-sage-500 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50'"
+                class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition text-xs">
+                <img :src="p.icon" :alt="p.name" class="w-5 h-5 rounded-full object-cover">
+                <span>{{ p.name }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">動態標題：</label>
+              <input v-model="editingEvent.title" type="text" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">日期與時間：</label>
+              <input v-model="editingEvent.date" type="datetime-local" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">外連網址 (選填)：</label>
+              <input v-model="editingEvent.link" type="url" placeholder="https://..." class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+            <button type="button" @click="editingEvent = null" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">取消</button>
+            <button type="submit" class="px-5 py-2 bg-sage-600 text-white rounded-lg text-xs font-bold hover:bg-sage-700 shadow-sm">儲存修改</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== 彈窗 2: 修改周邊購物 Modal ==================== -->
+    <div v-if="editingMerch" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl shadow-xl border border-sage-200 w-full max-w-lg p-6 space-y-4">
+        <div class="flex justify-between items-center border-b border-sage-100 pb-3">
+          <h3 class="text-lg font-bold text-sage-800">✏️ 修改消費紀錄</h3>
+          <button @click="editingMerch = null" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+
+        <form @submit.prevent="saveEditMerch" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">品項名稱：</label>
+            <input v-model="editingMerch.name" type="text" required class="w-full p-2.5 border rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">金額 (NT$)：</label>
+            <input v-model.number="editingMerch.price" type="number" required class="w-full p-2.5 border rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">狀態：</label>
+            <select v-model="editingMerch.status" class="w-full p-2.5 border rounded-lg text-sm">
+              <option value="待付款">⏳ 待付款</option>
+              <option value="已付款">✅ 已付款/待出貨</option>
+              <option value="已收到">📦 已收到</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">備註：</label>
+            <input v-model="editingMerch.note" type="text" class="w-full p-2.5 border rounded-lg text-sm">
+          </div>
+
+          <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+            <button type="button" @click="editingMerch = null" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">取消</button>
+            <button type="submit" class="px-5 py-2 bg-sage-600 text-white rounded-lg text-xs font-bold hover:bg-sage-700 shadow-sm">儲存修改</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 
   <!-- Realtime Database 模組載入與 Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref as dbRef, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBSYT-iNksOHfbdG2BRlwJD8YRNmJ7tFys",
@@ -297,6 +385,10 @@
         const merchList = ref([]);
         const showAddEvent = ref(false);
         const showAddMerch = ref(false);
+
+        // 編輯彈窗狀態
+        const editingEvent = ref(null);
+        const editingMerch = ref(null);
 
         // 台灣國定假日對照表
         const holidaysMap = {
@@ -427,11 +519,34 @@
           await remove(dbRef(db, `merch/${id}`));
         };
 
+        // 開啟與儲存行程編輯
+        const openEditEventModal = (item) => {
+          editingEvent.value = { ...item };
+        };
+        const saveEditEvent = async () => {
+          if (!editingEvent.value) return;
+          const { id, title, date, platform, link } = editingEvent.value;
+          await update(dbRef(db, `events/${id}`), { title, date, platform, link: link || '' });
+          editingEvent.value = null;
+        };
+
+        // 開啟與儲存周邊購物編輯
+        const openEditMerchModal = (item) => {
+          editingMerch.value = { ...item };
+        };
+        const saveEditMerch = async () => {
+          if (!editingMerch.value) return;
+          const { id, name, price, status, note } = editingMerch.value;
+          await update(dbRef(db, `merch/${id}`), { name, price: price || 0, status, note: note || '' });
+          editingMerch.value = null;
+        };
+
         return {
           currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
           platformOptions, getPlatformIcon,
           totalPrice, pendingItemsCount,
-          addEvent, deleteEvent, addMerch, deleteMerch
+          addEvent, deleteEvent, addMerch, deleteMerch,
+          editingEvent, editingMerch, openEditEventModal, saveEditEvent, openEditMerchModal, saveEditMerch
         };
       }
     }).mount('#app');
