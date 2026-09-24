@@ -172,12 +172,11 @@
                         <img :src="getPlatformIcon(item.platform)" :alt="item.platform" class="w-full h-full object-cover">
                       </div>
 
-                      <!-- 動態標題 -->
+                      <!-- 動態標題 (直接點擊標題即可跳轉外連) -->
                       <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer" 
-                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline flex items-center gap-1.5 truncate"
-                         title="點擊開啟外連網址">
+                         class="text-sm font-medium text-slate-700 hover:text-sage-700 hover:underline truncate"
+                         title="點擊前往連結">
                         <span v-html="renderCustomHighlight(item.title, item.highlight)"></span>
-                        <span class="text-[10px] bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-bold shrink-0">🔗 開啟</span>
                       </a>
                       <span v-else class="text-sm font-medium text-slate-700 truncate" v-html="renderCustomHighlight(item.title, item.highlight)">
                       </span>
@@ -432,7 +431,7 @@
           });
         });
 
-        // 手動輸入關鍵字渲染 (修復：保證完整標題顯示)
+        // 手動輸入關鍵字渲染
         const renderCustomHighlight = (title, highlight) => {
           if (!title) return '';
           if (!highlight) return title;
