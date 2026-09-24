@@ -86,20 +86,19 @@
         </button>
       </div>
 
-      <!-- 新增行程表單 -->
+      <!-- 新增行程表單 (純文字選單項目) -->
       <form v-if="showAddEvent" @submit.prevent="addEvent" class="bg-white p-5 rounded-xl border border-sage-200 shadow-sm space-y-3">
         <h3 class="text-sm font-bold text-sage-800 border-b pb-2">新增回歸動態紀錄</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: Instagram 更新 / Teaser 1)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
+          <input v-model="newEvent.title" type="text" placeholder="動態標題 (如: Teaser 1 公開 / 打歌節目)" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
           <input v-model="newEvent.date" type="datetime-local" required class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
           
           <select v-model="newEvent.platform" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
-            <option value="Instagram">Instagram (📷)</option>
-            <option value="X">X / Twitter (✖️)</option>
-            <option value="Weverse">Weverse (💬)</option>
-            <option value="YouTube">YouTube / LIVE (🔴)</option>
-            <option value="官方預告">官方發售/預告 (💿)</option>
-            <option value="節目活動">節目/簽售 (📺)</option>
+            <option value="Instagram">Instagram</option>
+            <option value="X">X</option>
+            <option value="Weverse">Weverse</option>
+            <option value="Youtube">Youtube</option>
+            <option value="Seventeen">Seventeen</option>
           </select>
 
           <input v-model="newEvent.link" type="url" placeholder="貼上網址 (例如: https://...)" class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sage-300">
@@ -128,17 +127,18 @@
             <div v-for="item in group.items" :key="item.id" class="flex items-center justify-between p-2 rounded-lg hover:bg-sage-50/60 transition group">
               
               <div class="flex items-center space-x-3 md:space-x-4 overflow-hidden">
-                <!-- 時間 (以小時為單位格式，如 13:00) -->
+                <!-- 時間 (以小時為單位，如 13:00) -->
                 <span class="text-xs md:text-sm font-mono font-bold text-slate-400 shrink-0 w-11 md:w-12">{{ item.timeStr }}</span>
                 
-                <!-- 圓形圖片/Icon 標籤 -->
+                <!-- 圓形圖片 Icon 標籤 -->
                 <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs" :title="item.platform">
-                  <img v-if="item.platform === 'Instagram'" src="./IG.jpg" alt="IG" class="w-full h-full object-cover">
+                  <img v-if="item.platform === 'Instagram'" src="./IG.jpg" alt="Instagram" class="w-full h-full object-cover">
                   <img v-else-if="item.platform === 'X'" src="./X.jpg" alt="X" class="w-full h-full object-cover">
                   <img v-else-if="item.platform === 'Weverse'" src="./WVS.jpg" alt="Weverse" class="w-full h-full object-cover">
-                  <img v-else-if="item.platform === 'YouTube'" src="./YT.png" alt="YouTube" class="w-full h-full object-cover">
-                  <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs" :class="getCircleIconStyle(item.platform)">
-                    {{ getPlatformSymbol(item.platform) }}
+                  <img v-else-if="item.platform === 'Youtube'" src="./YT.png" alt="Youtube" class="w-full h-full object-cover">
+                  <img v-else-if="item.platform === 'Seventeen'" src="./logo.jpg" alt="Seventeen" class="w-full h-full object-cover">
+                  <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs bg-sage-600 text-white">
+                    💎
                   </div>
                 </div>
 
@@ -334,7 +334,6 @@
             const dayNum = String(d.getDate()).padStart(2, '0');
             const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const weekDay = weekDays[d.getDay()];
-            // 格式化為整點小時格式 (例如: 13:00, 18:00)
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
             if (!groups[dateKey]) {
@@ -345,20 +344,6 @@
 
           return Object.values(groups);
         });
-
-        const getCircleIconStyle = (platform) => {
-          switch (platform) {
-            case '官方預告': return 'bg-indigo-500 text-white';
-            default: return 'bg-sage-600 text-white';
-          }
-        };
-
-        const getPlatformSymbol = (platform) => {
-          switch (platform) {
-            case '官方預告': return '💿';
-            default: return '📺';
-          }
-        };
 
         const calendarDays = computed(() => {
           const year = calendarYear.value;
@@ -422,7 +407,7 @@
         return {
           currentTab, events, groupedEvents, merchList, showAddEvent, showAddMerch, newEvent, newMerch,
           calendarYear, calendarMonth, calendarDays, prevMonth, nextMonth, todayMonth,
-          totalPrice, pendingItemsCount, getCircleIconStyle, getPlatformSymbol,
+          totalPrice, pendingItemsCount,
           addEvent, toggleEventStatus, deleteEvent, addMerch, deleteMerch
         };
       }
