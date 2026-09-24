@@ -138,10 +138,10 @@
             </span>
           </div>
 
-          <!-- 當日區塊 (底色保持原本白/微綠隔天交替) -->
+          <!-- 當日區塊 -->
           <div :class="gIdx % 2 === 0 ? 'bg-white' : 'bg-sage-50/50'" class="flex flex-row transition">
             
-            <!-- 左側日期欄 (放假日僅文字變柔和紅，底色不變) -->
+            <!-- 左側日期欄 -->
             <div class="w-28 p-4 border-r border-slate-100/80 flex flex-col items-center justify-center text-center shrink-0">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <span class="text-2xl font-bold tracking-tight leading-none" :class="group.isHoliday ? 'text-softred-600' : 'text-slate-700'">{{ group.dayNum }}</span>
@@ -149,17 +149,17 @@
               </div>
             </div>
 
-            <!-- 右側當天時間列表 (不同「小時」之間用鼠尾草綠虛線分隔) -->
-            <div class="flex-1 divide-y divide-dashed divide-sage-200 p-3 space-y-2">
-              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-start space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
+            <!-- 右側當天時間列表 (不同「小時」之間用實線分隔) -->
+            <div class="flex-1 divide-y divide-slate-100 p-3 space-y-2">
+              <div v-for="timeBlock in group.timeBlocks" :key="timeBlock.timeStr" class="flex items-center space-x-4 p-1.5 rounded-lg hover:bg-sage-100/30 transition pt-2 first:pt-0">
                 
-                <!-- 小時置中標籤 (如 18:00) -->
-                <div class="w-12 shrink-0 text-left pt-0.5">
+                <!-- 小時置中標籤 (垂直置中對齊) -->
+                <div class="w-12 shrink-0 text-left self-center">
                   <span class="text-sm font-mono font-bold text-slate-400 block">{{ timeBlock.timeStr }}</span>
                 </div>
 
-                <!-- 同一個小時內的行程項目 (多個行程間用實線分隔) -->
-                <div class="flex-1 space-y-2 divide-y divide-slate-100">
+                <!-- 同一個小時內的多個行程項目 (行程間用鼠尾草綠虛線分隔) -->
+                <div class="flex-1 space-y-2 divide-y divide-dashed divide-sage-200">
                   <div v-for="item in timeBlock.items" :key="item.id" class="flex items-center justify-between pt-2 first:pt-0 group">
                     
                     <div class="flex items-center space-x-3 overflow-hidden">
@@ -354,7 +354,7 @@
             const dayOfWeek = d.getDay();
             const weekDay = weekDays[dayOfWeek];
             
-            // 恢復為「整點/小時」單位 (如 18:00)
+            // 以「小時」為分組單位 (例如 18:00)
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:00`;
 
             const isHoliday = (dayOfWeek === 0 || dayOfWeek === 6) || Boolean(holidaysMap[dateKey]);
